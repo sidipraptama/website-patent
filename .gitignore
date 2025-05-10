@@ -1,0 +1,53 @@
+# Ignore data besar di FastAPI
+fastapi/data/*
+!fastapi/data/.gitkeep
+
+fastapi/storage/*
+!fastapi/storage/.gitkeep
+fastapi/storage/clean/
+!fastapi/storage/clean/.gitkeep
+fastapi/storage/download/
+!fastapi/storage/download/.gitkeep
+fastapi/storage/save/
+!fastapi/storage/save/.gitkeep
+fastapi/storage/vectorize/
+!fastapi/storage/vectorize/.gitkeep
+fastapi/storage/vectorize/embeddings/*
+!fastapi/storage/vectorize/embeddings/.gitkeep
+
+# Ignore model
+fastapi/bert_for_patents_model/
+fastapi/patent-tfidf-w2v/
+
+# Ignore venv
+fastapi/venv/
+
+# Ignore checkpoints jika besar (jika ingin semuanya)
+checkpoint*.txt
+
+# Ignore environment config
+.env
+.env.*
+
+# Ignore Docker volumes
+volumes/
+
+# Ignore deployment configs
+docker-compose.yml
+
+# Ignore Laravel-specific files
+laravel-website/vendor/
+laravel-website/node_modules/
+laravel-website/public/storage
+laravel-website/storage/*.key
+laravel-website/storage/app/public
+laravel-website/storage/framework/*
+!laravel-website/storage/framework/.gitkeep
+laravel-website/storage/logs/*
+!laravel-website/storage/logs/.gitkeep
+laravel-website/.env
+
+# MacOS & IDE
+.DS_Store
+.vscode/
+.idea/
