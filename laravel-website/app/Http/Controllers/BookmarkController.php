@@ -16,7 +16,7 @@ class BookmarkController extends Controller
     public function __construct()
     {
         // Set the API base URL from environment or default to Docker internal address
-        $this->apiBaseUrl = env('API_BASE_URL', 'http://host.docker.internal:8000');
+        $this->apiBaseUrl = env('API_BASE_URL');
 
         // Set the API URL for by_ids dynamically
         $this->apiUrl = $this->apiBaseUrl . '/api/patents/by_ids';

@@ -16,7 +16,7 @@ class PatentSearchController extends Controller
     public function __construct()
     {
         // Set API base URL from environment or default to Docker internal address
-        $this->apiBaseUrl = env('API_BASE_URL', 'http://host.docker.internal:8000');
+        $this->apiBaseUrl = env('API_BASE_URL');
 
         // Set the API URL based on the base URL
         $this->apiUrl = $this->apiBaseUrl . '/api/patents/search';
