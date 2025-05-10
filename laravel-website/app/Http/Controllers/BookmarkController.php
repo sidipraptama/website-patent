@@ -9,18 +9,22 @@ use Illuminate\Support\Facades\Auth;
 
 class BookmarkController extends Controller
 {
-    protected $apiBaseUrl = env('API_BASE_URL', 'http://host.docker.internal:8000');
-
-    protected $apiUrl = $this->apiBaseUrl . '/api/patents/by_ids';
-
+    protected $apiBaseUrl;
+    protected $apiUrl;
     protected $apiKey;
 
     public function __construct()
     {
+        // Set the API base URL from environment or default to Docker internal address
+        $this->apiBaseUrl = env('API_BASE_URL', 'http://host.docker.internal:8000');
+
+        // Set the API URL for by_ids dynamically
+        $this->apiUrl = $this->apiBaseUrl . '/api/patents/by_ids';
+
+        // Set the API key from environment
         $this->apiKey = env('FAST_API_KEY');
     }
 
-    // Menampilkan halaman bookmark
     public function index()
     {
         return view('bookmarks');

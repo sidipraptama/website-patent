@@ -12,15 +12,21 @@ use Str;
 
 class SimilaritySearchController extends Controller
 {
-    protected $apiBaseUrl = env('API_BASE_URL', 'http://host.docker.internal:8000');
-
-    protected $apiUrl = $this->apiBaseUrl . '/api/similarity';
-    protected $apiUrlByIds = $this->apiBaseUrl . '/api/patents/by_ids';
-
+    protected $apiBaseUrl;
+    protected $apiUrl;
+    protected $apiUrlByIds;
     protected $apiKey;
 
     public function __construct()
     {
+        // Set API base URL from environment or default to Docker internal address
+        $this->apiBaseUrl = env('API_BASE_URL', 'http://host.docker.internal:8000');
+
+        // Set the API URLs based on the base URL
+        $this->apiUrl = $this->apiBaseUrl . '/api/similarity';
+        $this->apiUrlByIds = $this->apiBaseUrl . '/api/patents/by_ids';
+
+        // Set the API key from environment
         $this->apiKey = env('FAST_API_KEY');
     }
 

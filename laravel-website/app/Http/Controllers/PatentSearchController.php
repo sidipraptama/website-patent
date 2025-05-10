@@ -9,14 +9,19 @@ use Illuminate\Support\Facades\Auth;
 
 class PatentSearchController extends Controller
 {
-    protected $apiBaseUrl = env('API_BASE_URL', 'http://host.docker.internal:8000');
-
-    protected $apiUrl = $this->apiBaseUrl . '/api/patents/search';
-
+    protected $apiBaseUrl;
+    protected $apiUrl;
     protected $apiKey;
 
     public function __construct()
     {
+        // Set API base URL from environment or default to Docker internal address
+        $this->apiBaseUrl = env('API_BASE_URL', 'http://host.docker.internal:8000');
+
+        // Set the API URL based on the base URL
+        $this->apiUrl = $this->apiBaseUrl . '/api/patents/search';
+
+        // Set the API key from environment
         $this->apiKey = env('FAST_API_KEY');
     }
 
