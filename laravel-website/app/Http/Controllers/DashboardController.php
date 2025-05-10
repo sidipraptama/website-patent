@@ -15,7 +15,7 @@ class DashboardController extends Controller
     public function __construct()
     {
         // Set the API base URL from environment or default to Docker internal address
-        $this->apiBaseUrl = env('API_BASE_URL');
+        $this->apiBaseUrl = env('API_BASE_URL', 'http://172.17.0.1:8001');
 
         // Set the statistics URL based on the base URL
         $this->statisticsUrl = $this->apiBaseUrl . '/api/patents/statistics';
