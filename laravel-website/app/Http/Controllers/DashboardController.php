@@ -8,7 +8,10 @@ use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
-    protected $apiUrl = 'http://host.docker.internal:8000/api/patents/statistics';
+    protected $apiBaseUrl = env('API_BASE_URL', 'http://host.docker.internal:8000');
+
+    protected $statisticsUrl = $this->apiBaseUrl . '/api/patents/statistics';
+
     protected $apiKey;
 
     public function __construct()
