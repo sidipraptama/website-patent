@@ -20,7 +20,7 @@ class SimilaritySearchController extends Controller
     public function __construct()
     {
         // Set API base URL from environment or default to Docker internal address
-        $this->apiBaseUrl = env('API_BASE_URL');
+        $this->apiBaseUrl = env('API_BASE_URL', 'http://172.17.0.1:8001');
 
         // Set the API URLs based on the base URL
         $this->apiUrl = $this->apiBaseUrl . '/api/similarity';
