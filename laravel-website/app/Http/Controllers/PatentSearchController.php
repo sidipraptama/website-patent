@@ -59,7 +59,7 @@ class PatentSearchController extends Controller
         if ($response->failed()) {
             // Ambil pesan error dari response, jika tersedia
             $errorMessage = $response->json('message') ?? 'Failed to fetch patents.';
-            return response()->json(['error' => $errorMessage], 500);
+            return response()->json(['error' => $response], 500);
         }
 
         $data = json_decode($response->body(), true);
