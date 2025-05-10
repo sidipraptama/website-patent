@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 class DashboardController extends Controller
 {
     protected $apiBaseUrl;
-    protected $statisticsUrl;
+    protected $apiUrl;
     protected $apiKey;
 
     public function __construct()
@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $this->apiBaseUrl = env('API_BASE_URL', 'http://172.17.0.1:8001');
 
         // Set the statistics URL based on the base URL
-        $this->statisticsUrl = $this->apiBaseUrl . '/api/patents/statistics';
+        $this->apiUrl = $this->apiBaseUrl . '/api/patents/statistics';
 
         // Set the API key from environment
         $this->apiKey = env('FAST_API_KEY');
