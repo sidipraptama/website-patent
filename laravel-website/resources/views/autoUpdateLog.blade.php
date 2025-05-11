@@ -20,7 +20,7 @@
 
         <hr class="mt-2 h-[1px] border-t-0 bg-neutral-200" />
 
-        <div id="draft-section" class="mt-4">
+        <div id="draft-section" class="mt-4 rounded overflow-auto">
             <table class="min-w-full text-sm text-left text-gray-700">
                 <thead class="bg-gray-100">
                     <tr>
