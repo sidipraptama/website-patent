@@ -3,33 +3,39 @@
 @section('title', 'Draft Patents')
 
 @section('content')
-    <div class="p-6 bg-white rounded-lg shadow-md">
-        <!-- Result Count -->
-        <p class="mt-2 text-sm font-medium text-gray-500 ml-3" id="result-count">0 drafts found</p>
+    <div class="p-6 md:px-32 md:py-8 transition-all duration-300 ease-in-out">
+        <x-navbar />
 
-        <hr class="mt-2 h-[1px] border-t-0 bg-neutral-200" />
+        <div class="p-6 bg-white rounded-lg shadow-md">
+            <!-- Result Count -->
+            <p class="mt-2 text-sm font-medium text-gray-500 ml-3" id="result-count">0 drafts found</p>
 
-        <!-- Grid Container -->
-        <div id="draft-section">
-            <!-- Loading Spinner -->
-            <div id="loading-spinner" class="hidden flex items-center justify-center py-6">
-                <svg class="animate-spin h-8 w-8 text-customBlue" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                    </circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                </svg>
+            <hr class="mt-2 h-[1px] border-t-0 bg-neutral-200" />
+
+            <!-- Grid Container -->
+            <div id="draft-section">
+                <!-- Loading Spinner -->
+                <div id="loading-spinner" class="hidden flex items-center justify-center py-6">
+                    <svg class="animate-spin h-8 w-8 text-customBlue" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                            stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    </svg>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state"
+                    class="hidden flex justify-center items-center flex-col text-center text-gray-600 py-12">
+                    <img src="/images/no_data_found.svg" alt="No data" class="w-64 h-auto mb-6 opacity-90">
+                    <h2 class="text-xl font-semibold mb-2">No drafts found</h2>
+                    <p class="text-gray-500">You haven't created any draft patents yet.</p>
+                </div>
+
+                <!-- Grid Content -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6" id="draft-list"></div>
             </div>
-
-            <!-- Empty State -->
-            <div id="empty-state" class="hidden flex justify-center items-center flex-col text-center text-gray-600 py-12">
-                <img src="/images/no_data_found.svg" alt="No data" class="w-64 h-auto mb-6 opacity-90">
-                <h2 class="text-xl font-semibold mb-2">No drafts found</h2>
-                <p class="text-gray-500">You haven't created any draft patents yet.</p>
-            </div>
-
-            <!-- Grid Content -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6" id="draft-list"></div>
         </div>
     </div>
 @endsection

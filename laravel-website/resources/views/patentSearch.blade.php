@@ -3,52 +3,57 @@
 @section('title', 'Patent Search')
 
 @section('content')
-    <div class="p-6 pt-8 bg-white rounded-lg shadow-md min-w-[32rem]">
-        <!-- Search Bar -->
-        <div class="flex items-center justify-between gap-2">
-            <div class="relative w-full max-w-lg">
-                <input type="text" id="search" placeholder="Search patents..."
-                    class="w-full pl-10 pr-4 py-2 border bg-white border-white rounded-lg text-slate-900/70 ring-[0.5px] ring-slate-300 focus:ring-customBlue focus:text-slate-900 focus:outline-none transition-all duration-300 ease-in-out">
-                <span class="absolute inset-y-0 left-3 flex items-center">
-                    <i class="fas fa-search fa-fw text-slate-900 flex-shrink-0"></i>
-                </span>
-            </div>
+    <div class="p-6 md:px-32 md:py-8 transition-all duration-300 ease-in-out">
+        <x-navbar />
 
-            <!-- Filter & Sorting -->
-            <div class="flex">
-                <div class="max-w-sm mx-auto relative">
-                    <select id="sortBy"
-                        class="appearance-none bg-white border border-white text-sm rounded-lg text-slate-900/70 ring-[0.5px] ring-slate-300 focus:ring-customBlue block w-full p-2.5 pr-8 transition-all duration-300 ease-in-out">
-                        <option value="relevance">Sort by: Relevance</option>
-                        <option value="newest">Sort by: Newest</option>
-                        <option value="oldest">Sort by: Oldest</option>
-                    </select>
-                    <span class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                        <i class="fas fa-chevron-down text-slate-900 text-xs"></i>
+        <div class="p-6 bg-white rounded-lg shadow-md">
+            <!-- Search Bar -->
+            <div class="flex items-center justify-between gap-2">
+                <div class="relative w-full max-w-lg">
+                    <input type="text" id="search" placeholder="Search patents..."
+                        class="w-full pl-10 pr-4 py-2 border bg-white border-white rounded-lg text-slate-900/70 ring-[0.5px] ring-slate-300 focus:ring-customBlue focus:text-slate-900 focus:outline-none transition-all duration-300 ease-in-out">
+                    <span class="absolute inset-y-0 left-3 flex items-center">
+                        <i class="fas fa-search fa-fw text-slate-900 flex-shrink-0"></i>
                     </span>
                 </div>
+
+                <!-- Filter & Sorting -->
+                <div class="flex">
+                    <div class="max-w-sm mx-auto relative">
+                        <select id="sortBy"
+                            class="appearance-none bg-white border border-white text-sm rounded-lg text-slate-900/70 ring-[0.5px] ring-slate-300 focus:ring-customBlue block w-full p-2.5 pr-8 transition-all duration-300 ease-in-out">
+                            <option value="relevance">Sort by: Relevance</option>
+                            <option value="newest">Sort by: Newest</option>
+                            <option value="oldest">Sort by: Oldest</option>
+                        </select>
+                        <span class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                            <i class="fas fa-chevron-down text-slate-900 text-xs"></i>
+                        </span>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Result Count -->
-        <p class="mt-5 text-sm font-medium text-slate-900/70 ml-3" id="result-count">0 patents found</p>
+            <!-- Result Count -->
+            <p class="mt-5 text-sm font-medium text-slate-900/70 ml-3" id="result-count">0 patents found</p>
 
-        <hr class="mt-2 h-[1px] border-t-0 bg-neutral-200" />
+            <hr class="mt-2 h-[1px] border-t-0 bg-neutral-200" />
 
-        <!-- Patent List (Grid) -->
-        <div class="grid grid-cols-1 mt-6" id="patent-list">
-            <div id="loading-spinner" class="hidden flex items-center justify-center py-6">
-                <svg class="animate-spin h-8 w-8 text-customBlue" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                    </circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                </svg>
+            <!-- Patent List (Grid) -->
+            <div class="grid grid-cols-1 mt-6" id="patent-list">
+                <div id="loading-spinner" class="hidden flex items-center justify-center py-6">
+                    <svg class="animate-spin h-8 w-8 text-customBlue" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                            stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    </svg>
+                </div>
             </div>
-        </div>
 
-        <!-- Pagination -->
-        <div class="mt-4 flex justify-end" id="pagination"></div>
+            <!-- Pagination -->
+            <div class="mt-4 flex justify-end" id="pagination"></div>
+        </div>
     </div>
 @endsection
 

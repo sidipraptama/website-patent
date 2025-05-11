@@ -3,56 +3,62 @@
 @section('title', 'Auto Update Logs')
 
 @section('content')
-    <div class="p-6 bg-white rounded-lg shadow-md min-w-[32rem]">
-        <div class="flex items-center justify-between">
-            <p class="text-sm font-medium text-gray-500 ml-3" id="result-count">
-                0 update logs found
-            </p>
+    <div class="p-6 md:px-32 md:py-8 transition-all duration-300 ease-in-out min-w-[32rem]">
+        <x-navbar />
 
-            <div class="flex items-center space-x-3 ml-auto">
-                <button id="sendRabbitBtn"
-                    class="bg-white hover:bg-gray-100 border border-gray-200 text-customBlue text-sm font-medium py-1.5 px-3 rounded-lg transition flex items-center space-x-2">
-                    <i class="fas fa-paper-plane"></i>
-                    <span>Send Update Request</span>
-                </button>
-            </div>
-        </div>
+        <div class="p-6 bg-white rounded-lg shadow-md">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-500 ml-3" id="result-count">
+                    0 update logs found
+                </p>
 
-        <hr class="mt-2 h-[1px] border-t-0 bg-neutral-200" />
-
-        <div id="draft-section" class="mt-4 rounded overflow-auto">
-            <table class="min-w-full text-sm text-left text-gray-700">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="py-2 px-4">ID</th>
-                        <th class="py-2 px-4">Status</th>
-                        <th class="py-2 px-4">Started At</th>
-                        <th class="py-2 px-4">Completed At</th>
-                        <th class="py-2 px-4">Description</th>
-                        <th class="py-2 px-4">Latest Log</th>
-                        <th class="py-2 px-4">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="update-log-table" class="divide-y divide-gray-200 bg-white">
-                    <!-- Fetched data will populate here -->
-                </tbody>
-            </table>
-
-            <!-- Loading Spinner -->
-            <div id="loading-spinner" class="hidden flex items-center justify-center py-6">
-                <svg class="animate-spin h-8 w-8 text-customBlue" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                    </circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                </svg>
+                <div class="flex items-center space-x-3 ml-auto">
+                    <button id="sendRabbitBtn"
+                        class="bg-white hover:bg-gray-100 border border-gray-200 text-customBlue text-sm font-medium py-1.5 px-3 rounded-lg transition flex items-center space-x-2">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Send Update Request</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Empty State -->
-            <div id="empty-state" class="hidden flex justify-center items-center flex-col text-center text-gray-600 py-12">
-                <img src="/images/no_data_found.svg" alt="No data" class="w-64 h-auto mb-6 opacity-90">
-                <h2 class="text-xl font-semibold mb-2">No update logs found</h2>
-                <p class="text-gray-500">System haven't updated database yet.</p>
+            <hr class="mt-2 h-[1px] border-t-0 bg-neutral-200" />
+
+            <div id="draft-section" class="mt-4 rounded overflow-auto">
+                <table class="min-w-full text-sm text-left text-gray-700">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="py-2 px-4">ID</th>
+                            <th class="py-2 px-4">Status</th>
+                            <th class="py-2 px-4">Started At</th>
+                            <th class="py-2 px-4">Completed At</th>
+                            <th class="py-2 px-4">Description</th>
+                            <th class="py-2 px-4">Latest Log</th>
+                            <th class="py-2 px-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="update-log-table" class="divide-y divide-gray-200 bg-white">
+                        <!-- Fetched data will populate here -->
+                    </tbody>
+                </table>
+
+                <!-- Loading Spinner -->
+                <div id="loading-spinner" class="hidden flex items-center justify-center py-6">
+                    <svg class="animate-spin h-8 w-8 text-customBlue" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                            stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    </svg>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state"
+                    class="hidden flex justify-center items-center flex-col text-center text-gray-600 py-12">
+                    <img src="/images/no_data_found.svg" alt="No data" class="w-64 h-auto mb-6 opacity-90">
+                    <h2 class="text-xl font-semibold mb-2">No update logs found</h2>
+                    <p class="text-gray-500">System haven't updated database yet.</p>
+                </div>
             </div>
         </div>
     </div>

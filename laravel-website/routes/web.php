@@ -10,9 +10,14 @@ use App\Http\Controllers\RabbitController;
 use App\Http\Controllers\SimilaritySearchController;
 use Illuminate\Support\Facades\Route;
 
+// Route::get('/', function () {
+//     return view('auth.login');
+// });
+
 Route::get('/', function () {
-    return view('auth.login');
+    return view('landing');
 });
+
 
 // Menambahkan rute-rute yang ada ke dalam grup 'auth'
 Route::middleware('auth')->group(function () {
@@ -25,7 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::prefix('dashboard')->group(function () {
         Route::get('/statistics', [DashboardController::class, 'fetchPatentStatistics'])->name('dashboard.statistics');
-        Route::get('/statistics/yearly', [DashboardController::class, 'fetchPatentStatisticsYearly'])->name('dashboard.statistics.yearly');
+        Route::get('/statistics/yearlyeb', [DashboardController::class, 'fetchPatentStatisticsYearly'])->name('dashboard.statistics.yearly');
     });
 
     Route::get('/patent-search', [PatentSearchController::class, 'index'])->name('patent-search');
