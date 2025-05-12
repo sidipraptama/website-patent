@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import os
 
-MILVUS_HOST = os.getenv("MILVUS_HOST", "localhost")
+MILVUS_HOST = os.getenv("MILVUS_HOST", "milvus-standalone")
 MILVUS_PORT = os.getenv("MILVUS_PORT", "19530")
 MILVUS_COLLECTION = os.getenv("MILVUS_COLLECTION", "default")
 # MILVUS_COLLECTION_64 = "patent_vectors_64"
@@ -12,13 +12,20 @@ logging.basicConfig(level=logging.INFO)
 
 print(MILVUS_HOST, MILVUS_PORT)
 
-# Koneksi ke Milvus
+milvus_available = False
+
 def connect_milvus():
-    # Cek apakah koneksi 'default' sudah ada
-    if not connections.has_connection("default"):
-        connections.connect(alias="default", host=MILVUS_HOST, port=MILVUS_PORT)
-        
-    print("Koleksi di 'default':", utility.list_collections(using="default"))
+    global milvus_available
+    try:
+        if not connections.has_connection("default"):
+            connections.connect(alias="default", host=MILVUS_HOST, port=MILVUS_PORT)
+        # Test connection
+        _ = utility.list_collections(using="default")
+        milvus_available = True
+        logging.info("Milvus connected successfully.")
+    except Exception as e:
+        logging.warning(f"Milvus not available: {e}")
+        milvus_available = False
 
 # Hapus koleksi kalau sudah ada
 def reset_collection():
@@ -38,11 +45,6 @@ def reset_collection_all(collection_name):
             print(f"Koleksi '{collection_name}' tidak ditemukan.")
     except Exception as e:
         print(f"❌ Gagal menghapus koleksi '{collection_name}': {str(e)}")
-
-# def reset_collection_64():
-#     if utility.has_collection(MILVUS_COLLECTION_64):
-#         utility.drop_collection(MILVUS_COLLECTION_64)
-#         print(f"Koleksi '{MILVUS_COLLECTION_64}' dihapus.")
 
 # Buat koleksi (kalau belum ada)
 def create_collection():
@@ -84,19 +86,6 @@ def create_collection_tfidf():
     collection = Collection(name="patent_vectors_tfidf", schema=schema)
     print(f"Koleksi patent_vectors_tfidf berhasil dibuat!")
 
-# def create_collection_64():
-#     if utility.has_collection(MILVUS_COLLECTION_64):
-#         print(f"Koleksi '{MILVUS_COLLECTION_64}' sudah ada.")
-#         return
-
-#     fields = [
-#         FieldSchema(name="id", dtype=DataType.VARCHAR, max_length=20, is_primary=True),
-#         FieldSchema(name="embeddings", dtype=DataType.FLOAT_VECTOR, dim=64)  # Menggunakan dimensi 64
-#     ]
-#     schema = CollectionSchema(fields, description="Patent Embeddings Collection with 64-dim Vectors")
-#     collection = Collection(name=MILVUS_COLLECTION_64, schema=schema)
-#     print(f"Koleksi '{MILVUS_COLLECTION_64}' berhasil dibuat!")
-
 def check_index():
     collection = get_collection()
     indexes = collection.indexes
@@ -120,14 +109,6 @@ def check_index_tfidf():
         print(f"Index ditemukan di collection patent_vectors_tfidf: {indexes}")
     else:
         print(f"Tidak ada index di collection patent_vectors_tfidf")
-
-# def check_index_64():
-#     collection = get_collection_64()
-#     indexes = collection.indexes
-#     if indexes:
-#         print(f"Index ditemukan di collection '{MILVUS_COLLECTION_64}': {indexes}")
-#     else:
-#         print(f"Tidak ada index di collection '{MILVUS_COLLECTION_64}'")
 
 def create_index():
     collection = get_collection()
@@ -243,37 +224,6 @@ def create_index_tfidf():
     except Exception as e:
         print(f"❌ Terjadi error saat membuat atau memuat index: {e}")
 
-# def create_index_64():
-#     collection = get_collection_64()
-
-#     if not collection:
-#         print("❌ Koleksi tidak ditemukan, tidak bisa membuat index.")
-#         return
-
-#     try:
-#         if collection.has_index():
-#             print("✅ Index sudah ada.")
-#             return
-
-#         index_params = {
-#             "metric_type": "COSINE",
-#             "index_type": "HNSW",
-#             "params": {
-#                 "M": 32,
-#                 "efConstruction": 200
-#             }
-#         }
-
-#         print("⚙️ Membuat index HNSW...")
-#         collection.create_index(field_name="embeddings", index_params=index_params)
-#         print("✅ Index HNSW berhasil dibuat.")
-#         print("hooooo")
-#         collection.load()
-#         print("✅ Koleksi berhasil dimuat ke memori.")
-
-#     except Exception as e:
-#         print(f"❌ Terjadi error: {e}")
-
 # Load koleksi
 def get_collection():
     print(f"Nama koleksi: {MILVUS_COLLECTION}")
@@ -292,12 +242,6 @@ def get_collection_tfidf():
     collection = Collection('patent_vectors_tfidf', using="default")
     collection.load()
     return collection
-
-# def get_collection_64():
-#     print(f"Nama koleksi: {MILVUS_COLLECTION_64}")
-#     collection = Collection(MILVUS_COLLECTION_64, using="default")
-#     collection.load()
-#     return collection
 
 # Search similarity
 def search_vectors(embedding, limit=10):
@@ -369,29 +313,6 @@ def search_vectors_tfidf(embedding, limit=10):
     )
     return results
 
-# def search_vectors_64(embedding, limit=10):
-#     collection = get_collection_64()
-
-#     # IVF
-#     # search_params = {"metric_type": "COSINE", "params": {"nprobe": 10}}
-
-#     # HNSW
-#     search_params = {
-#         "metric_type": "COSINE",
-#         "params": {
-#             "ef": 20000 # efConstruction: Jumlah kandidat yang dipertimbangkan saat membangun index.
-#         }
-#     }
-
-#     results = collection.search(
-#         data=[embedding],
-#         anns_field="embeddings",
-#         param=search_params,
-#         limit=limit,
-#         output_fields=["id"]
-#     )
-#     return results
-
 # Insert data
 def insert_vectors(embeddings, abstracts):
     collection = get_collection()
@@ -402,16 +323,6 @@ def insert_vectors(embeddings, abstracts):
     collection.insert(data)
     collection.flush()
     print("Data inserted successfully!")
-
-# def insert_vectors_64(embeddings, abstracts):
-#     collection = get_collection_64()
-#     data = [
-#         embeddings.tolist(),
-#         abstracts.tolist()
-#     ]
-#     collection.insert(data)
-#     collection.flush()
-#     print("Data inserted successfully!")
 
 # Batch insert data
 def insert_vectors_batch(collection_name, all_ids, all_embeddings, batch_size=1000):
