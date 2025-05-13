@@ -122,6 +122,55 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Backdrop -->
+    <div id="draftModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+
+        <!-- Modal Box -->
+        <div
+            class="bg-white p-8 rounded-xl shadow-lg w-[28rem] text-center transform scale-95 transition-transform duration-300">
+
+            <!-- Spinner Icon -->
+            <svg class="mx-auto mb-4 h-12 w-12 text-customBlue animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                </circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
+                </path>
+            </svg>
+
+            <!-- Title & Description -->
+            <h2 class="text-lg font-semibold text-gray-800">Generating Draft Patent...</h2>
+            <p class="text-sm text-gray-600 mt-2">We are building your patent draft. This may take a few seconds.</p>
+        </div>
+    </div>
+
+    <style>
+        /* Loader Spinner */
+        .loader {
+            border: 4px solid #3b82f6;
+            /* blue-500 */
+            border-top: 4px solid transparent;
+            border-radius: 9999px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Show modal (via JS) */
+        .show-modal {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        .show-modal>div {
+            transform: scale(1) !important;
+        }
+    </style>
 @endsection
 
 @section('scripts')
@@ -399,60 +448,69 @@
                 return;
             }
 
-            $.ajax({
-                url: "{{ route('draft-patent.create') }}",
-                method: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    check_id: selectedHistoryId
-                },
-                beforeSend: function() {
-                    $('#loader').removeClass('hidden');
-                    $('body').css('overflow', 'hidden');
-                },
-                success: function(response) {
-                    $('#loader').addClass('hidden');
-                    $('body').css('overflow', 'auto');
+            // Tampilkan modal dengan animasi
+            $('#draftModal').addClass('show-modal');
 
-                    // Menonaktifkan tombol setelah berhasil membuat draft
-                    $('#proceedToDraftBtn').prop('disabled', true).addClass(
-                            'opacity-50 cursor-not-allowed')
-                        .html('<i class="fas fa-ban text-xs mr-2"></i> Draft Sudah Dibuat');
+            // Tunggu 3 detik, lalu lakukan AJAX
+            setTimeout(function() {
+                $.ajax({
+                    url: "{{ route('draft-patent.create') }}",
+                    method: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        check_id: selectedHistoryId
+                    },
+                    beforeSend: function() {
+                        $('#loader').removeClass('hidden');
+                        $('body').css('overflow', 'hidden');
+                    },
+                    success: function(response) {
+                        $('#loader').addClass('hidden');
+                        $('body').css('overflow', 'auto');
+                        $('#draftModal').removeClass(
+                            'show-modal'); // Tutup modal dengan animasi
 
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: response.message || 'Draft Dibuat',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        customClass: {
-                            popup: 'mt-[1rem]',
-                        }
-                    }).then(() => {
-                        if (response.redirect_url) {
-                            window.open(response.redirect_url, '_blank');
-                        } else {
-                            console.error('Redirect URL tidak tersedia di response.');
-                        }
-                    });
-                },
-                error: function(xhr) {
-                    $('#loader').addClass('hidden');
-                    $('body').css('overflow', 'auto');
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'error',
-                        title: xhr.responseJSON?.message || 'Gagal Membuat Draft',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        customClass: {
-                            popup: 'mt-[1rem]',
-                        }
-                    });
-                }
-            });
+                        $('#proceedToDraftBtn').prop('disabled', true).addClass(
+                            'opacity-50 cursor-not-allowed').html(
+                            '<i class="fas fa-ban text-xs mr-2"></i> Draft Sudah Dibuat');
+
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: response.message || 'Draft Dibuat',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            customClass: {
+                                popup: 'mt-[1rem]',
+                            }
+                        }).then(() => {
+                            if (response.redirect_url) {
+                                window.open(response.redirect_url, '_blank');
+                            } else {
+                                console.error(
+                                    'Redirect URL tidak tersedia di response.');
+                            }
+                        });
+                    },
+                    error: function(xhr) {
+                        $('#loader').addClass('hidden');
+                        $('body').css('overflow', 'auto');
+                        $('#draftModal').removeClass('show-modal');
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: xhr.responseJSON?.message || 'Gagal Membuat Draft',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            customClass: {
+                                popup: 'mt-[1rem]',
+                            }
+                        });
+                    }
+                });
+            }, 3000);
         });
 
         function toggleBookmark(patentId) {

@@ -244,7 +244,7 @@
                     <h6 class="pl-6 text-md font-medium text-gray-800">Bidang Teknologi Invensi</h6>
                     <div class="mt-2 bg-white p-6 pt-7 rounded-xl shadow transition w-full">
                         <div id="editor-bidang" contenteditable="true"
-                            class="w-full min-h-[4rem] max-h-60 overflow-y-auto text-gray-600 focus:outline-none border-0 border-b border-gray-300 focus:border-customBlue transition-colors duration-300 ease-in-out bg-transparent px-0 py-1">
+                            class="text-justify w-full min-h-[4rem] max-h-60 overflow-y-auto text-gray-600 focus:outline-none border-0 border-b border-gray-300 focus:border-customBlue transition-colors duration-300 ease-in-out bg-transparent px-0 py-1">
                             {!! $draft->technical_field !!}
                         </div>
                     </div>

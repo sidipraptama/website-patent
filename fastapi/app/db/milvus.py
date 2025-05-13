@@ -166,8 +166,8 @@ def create_index_sberta():
             "metric_type": "COSINE",    # Gunakan Cosine Similarity
             "index_type": "HNSW",
             "params": {
-                "M": 32,                # Maksimum koneksi antar node
-                "efConstruction": 200   # Jumlah kandidat saat membangun index
+                "M": 16,                # Maksimum koneksi antar node
+                "efConstruction": 40   # Jumlah kandidat saat membangun index
             }
         }
 
@@ -277,7 +277,7 @@ def search_vectors_sberta(embedding, limit=10):
     search_params = {
         "metric_type": "COSINE",
         "params": {
-            "ef": 20000 # efConstruction: Jumlah kandidat yang dipertimbangkan saat membangun index.
+            "ef": 500
         }
     }
 
