@@ -52,7 +52,7 @@
             </div>
 
             <!-- Pagination -->
-            <div class="mt-4 flex justify-end" id="pagination"></div>
+            <div class="mt-4 flex justify-center md:justify-end overflow-x-auto whitespace-nowrap" id="pagination"></div>
         </div>
     </div>
 @endsection
