@@ -3,123 +3,120 @@
 @section('title', 'Similarity Search')
 
 @section('content')
-    <div class="p-6 md:px-32 md:py-8 transition-all duration-300 ease-in-out min-w-[32rem]">
+    <div x-data="{ sidebarHistoryOpen: false }" class="p-6 md:px-32 md:py-8 transition-all duration-300 ease-in-out min-w-[36rem]">
         <x-navbar />
 
-        <div>
-            <div x-data="{ sidebarHistoryOpen: false }" class="rounded-lg min-w-[32rem] transition-all duration-300 ease-in-out"
-                :class="sidebarHistoryOpen ? 'lg:mr-[16rem]' : ''">
-                <!-- Sidebar History -->
-                <aside x-show="sidebarHistoryOpen" x-transition:enter="transition ease-in-out duration-300 transform"
-                    x-transition:enter-start="opacity-0 translate-x-full" x-transition:enter-end="opacity-100 translate-x-0"
-                    x-transition:leave="transition ease-in-out duration-300 transform"
-                    x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 translate-x-full"
-                    class="z-50 fixed top-0 right-0 bg-white h-screen p-4 pt-8 shadow-md w-[16rem] flex flex-col">
-                    <!-- Header -->
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-md font-semibold text-gray-800">Search History</h2>
-                        <button id="closeSidebar" class="text-gray-800 hover:text-gray-500"
-                            @click="sidebarHistoryOpen = !sidebarHistoryOpen">
-                            <i class="fas fa-times"></i>
+        <div class="">
+            <!-- Sidebar History -->
+            <aside x-show="sidebarHistoryOpen" x-transition:enter="transition ease-in-out duration-300 transform"
+                x-transition:enter-start="opacity-0 translate-x-full" x-transition:enter-end="opacity-100 translate-x-0"
+                x-transition:leave="transition ease-in-out duration-300 transform"
+                x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 translate-x-full"
+                class="z-50 fixed top-0 right-0 bg-white h-screen p-4 pt-8 shadow-md w-[16rem] flex flex-col">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-md font-semibold text-gray-800">Search History</h2>
+                    <button id="closeSidebar" class="text-gray-800 hover:text-gray-500"
+                        @click="sidebarHistoryOpen = !sidebarHistoryOpen">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Scrollable Area -->
+                <div class="relative grow min-h-full overflow-y-auto">
+                    <!-- Empty State -->
+                    <div id="historyEmpty"
+                        class="hidden absolute inset-0 flex items-center justify-center text-gray-800 text-sm p-4">
+                        <div class="flex flex-col items-center text-center">
+                            <i class="fas fa-history text-4xl mb-3"></i>
+                            <p>No search history available.</p>
+                        </div>
+                    </div>
+
+                    <!-- History List -->
+                    <div id="historyList" class="mt-2 space-y-2 max-h-[85vh] overflow-y-auto"></div>
+                </div>
+            </aside>
+
+            <!-- Input Sebelum Search -->
+            <div id="searchWrapper"
+                class="flex flex-col items-center justify-center w-full h-[50rem] min-w-[32rem] max-w-[48rem] mx-auto">
+                <div class="bg-white shadow-md rounded-xl p-6 pt-8 w-full">
+                    <div x-data="{ showGuide: true }" x-show="showGuide" class="relative mb-4 w-full">
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded-lg text-sm">
+                            <strong class="block font-semibold mb-1">Abstract Input Guide:</strong>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Use clear and descriptive language to explain your idea or invention.</li>
+                                <li>The text should be at least <strong>200 characters long</strong> to ensure optimal
+                                    analysis by the system.</li>
+                                <li>Include key details such as the purpose, how it works, and what makes it unique.
+                                </li>
+                                <li>Avoid including personal or sensitive information.</li>
+                                <li>Example: "An automated system for feeding pets using IoT and remote monitoring..."
+                                </li>
+                            </ul>
+                        </div>
+                        <button @click="showGuide = false"
+                            class="absolute top-2 right-2 text-yellow-600 hover:text-yellow-800 focus:outline-none text-lg font-bold">
+                            &times;
                         </button>
                     </div>
 
-                    <!-- Scrollable Area -->
-                    <div class="relative grow min-h-full overflow-y-auto">
-                        <!-- Empty State -->
-                        <div id="historyEmpty"
-                            class="hidden absolute inset-0 flex items-center justify-center text-gray-800 text-sm p-4">
-                            <div class="flex flex-col items-center text-center">
-                                <i class="fas fa-history text-4xl mb-3"></i>
-                                <p>No search history available.</p>
-                            </div>
-                        </div>
-
-                        <!-- History List -->
-                        <div id="historyList" class="mt-2 space-y-2 max-h-[85vh] overflow-y-auto"></div>
-                    </div>
-                </aside>
-
-                <!-- Input Sebelum Search -->
-                <div id="searchWrapper"
-                    class="flex flex-col items-center justify-center w-full h-[50rem] min-w-[32rem] max-w-[48rem] mx-auto">
-                    <div class="bg-white shadow-md rounded-xl p-6 pt-8 w-full">
-                        <div x-data="{ showGuide: true }" x-show="showGuide" class="relative mb-4 w-full">
-                            <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded-lg text-sm">
-                                <strong class="block font-semibold mb-1">Abstract Input Guide:</strong>
-                                <ul class="list-disc list-inside space-y-1">
-                                    <li>Use clear and descriptive language to explain your idea or invention.</li>
-                                    <li>The text should be at least <strong>200 characters long</strong> to ensure optimal
-                                        analysis by the system.</li>
-                                    <li>Include key details such as the purpose, how it works, and what makes it unique.
-                                    </li>
-                                    <li>Avoid including personal or sensitive information.</li>
-                                    <li>Example: "An automated system for feeding pets using IoT and remote monitoring..."
-                                    </li>
-                                </ul>
-                            </div>
-                            <button @click="showGuide = false"
-                                class="absolute top-2 right-2 text-yellow-600 hover:text-yellow-800 focus:outline-none text-lg font-bold">
-                                &times;
-                            </button>
-                        </div>
-
-                        <form method="POST" id="similarityForm">
-                            @csrf
-                            <textarea name="abstract" id="abstractInput"
-                                class="w-full h-48 max-h-[32rem] min-h-[8rem] p-4 border border-gray-300 text-md text-gray-600 rounded-lg
+                    <form method="POST" id="similarityForm">
+                        @csrf
+                        <textarea name="abstract" id="abstractInput"
+                            class="w-full h-48 max-h-[32rem] min-h-[8rem] p-4 border border-gray-300 text-md text-gray-600 rounded-lg
                                placeholder-gray-400 transition-all duration-300 ease-in-out
                                focus:ring-1 focus:ring-customBlue focus:border-customBlue focus:outline-none"
-                                placeholder="Describe your idea...">{{ old('abstract') }}</textarea>
-                            <div class="flex items-center mt-2 justify-end">
-                                <button type="button" @click="sidebarHistoryOpen = !sidebarHistoryOpen"
-                                    :class="sidebarHistoryOpen ? 'bg-customBlue hover:bg-customBlue-hover text-white' :
-                                        'bg-slate-50 hover:bg-slate-100 text-customBlue'"
-                                    class="btn-open-sidebar text-sm px-4 py-2 rounded-lg flex items-center transition-all duration-300 ease-in-out">
-                                    <i class="fas fa-history text-xs mr-2"></i> History
-                                </button>
-                                <button type="submit"
-                                    class="ml-2 bg-customBlue text-white text-sm px-4 py-2 rounded-lg hover:bg-customBlue-hover flex items-center transition-all duration-300 ease-in-out">
-                                    <i class="fas fa-search text-xs mr-2"></i> Search
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Setelah Search -->
-                <div id="resultWrapper" class="hidden w-full min-w-[32rem] max-w-[52rem] mx-auto mt-4">
-                    <div class="bg-white shadow-md rounded-xl p-6 pt-8 mx-auto">
-                        <!-- Tampilkan hasil abstract -->
-                        <div role="abstractDisplay"
-                            class="w-full h-48 p-4 border rounded-lg text-md text-gray-600 whitespace-pre-line overflow-y-auto">
-                            {{ old('abstract') }}
-                        </div>
+                            placeholder="Describe your idea...">{{ old('abstract') }}</textarea>
                         <div class="flex items-center mt-2 justify-end">
                             <button type="button" @click="sidebarHistoryOpen = !sidebarHistoryOpen"
                                 :class="sidebarHistoryOpen ? 'bg-customBlue hover:bg-customBlue-hover text-white' :
                                     'bg-slate-50 hover:bg-slate-100 text-customBlue'"
-                                class="btn-open-sidebar text-sm px-4 py-2 rounded-lg flex items-center">
+                                class="btn-open-sidebar text-sm px-4 py-2 rounded-lg flex items-center transition-all duration-300 ease-in-out">
                                 <i class="fas fa-history text-xs mr-2"></i> History
                             </button>
-                            <button type="button" id="proceedToDraftBtn"
-                                class="ml-2 bg-customBlue text-white text-sm px-4 py-2 rounded-lg hover:bg-customBlue-hover flex items-center">
-                                <i class="fas fa-search text-xs mr-2"></i> Proceed to Draft Patent
+                            <button type="submit"
+                                class="ml-2 bg-customBlue text-white text-sm px-4 py-2 rounded-lg hover:bg-customBlue-hover flex items-center transition-all duration-300 ease-in-out">
+                                <i class="fas fa-search text-xs mr-2"></i> Search
                             </button>
                         </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Setelah Search -->
+            <div id="resultWrapper" class="hidden w-full min-w-[32rem] max-w-[52rem] mx-auto mt-4">
+                <div class="bg-white shadow-md rounded-xl p-6 pt-8 mx-auto">
+                    <!-- Tampilkan hasil abstract -->
+                    <div role="abstractDisplay"
+                        class="w-full h-48 p-4 border rounded-lg text-md text-gray-600 whitespace-pre-line overflow-y-auto">
+                        {{ old('abstract') }}
+                    </div>
+                    <div class="flex items-center mt-2 justify-end">
+                        <button type="button" @click="sidebarHistoryOpen = !sidebarHistoryOpen"
+                            :class="sidebarHistoryOpen ? 'bg-customBlue hover:bg-customBlue-hover text-white' :
+                                'bg-slate-50 hover:bg-slate-100 text-customBlue'"
+                            class="btn-open-sidebar text-sm px-4 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-history text-xs mr-2"></i> History
+                        </button>
+                        <button type="button" id="proceedToDraftBtn"
+                            class="ml-2 bg-customBlue text-white text-sm px-4 py-2 rounded-lg hover:bg-customBlue-hover flex items-center">
+                            <i class="fas fa-search text-xs mr-2"></i> Proceed to Draft Patent
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <div id="resultContainer" class="space-y-4 w-full min-w-[32rem] max-w-[52rem] mx-auto mt-4">
-                </div>
+            <div id="resultContainer" class="space-y-4 w-full min-w-[32rem] max-w-[52rem] mx-auto mt-4">
             </div>
         </div>
+    </div>
 
-        <div id="loader" class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80 hidden">
-            <div class="flex flex-col items-center">
-                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-gray-600"></div>
-                <p class="mt-4 text-gray-700 font-medium">Please wait...</p>
-            </div>
+    <div id="loader" class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80 hidden">
+        <div class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-gray-600"></div>
+            <p class="mt-4 text-gray-700 font-medium">Please wait...</p>
         </div>
     </div>
 
@@ -254,7 +251,7 @@
                                     proceedBtn.prop('disabled', true)
                                         .addClass('opacity-50 cursor-not-allowed')
                                         .html(
-                                            '<i class="fas fa-ban text-xs mr-2"></i> Draft Sudah Dibuat'
+                                            '<i class="fas fa-ban text-xs mr-2"></i> Draft Created'
                                         );
                                 } else {
                                     proceedBtn.prop('disabled', false)
@@ -448,7 +445,7 @@
                 return;
             }
 
-            // Tampilkan modal dengan animasi
+            // Tampilkan modal loading buatan sendiri
             $('#draftModal').addClass('show-modal');
 
             // Tunggu 3 detik, lalu lakukan AJAX
@@ -467,29 +464,39 @@
                     success: function(response) {
                         $('#loader').addClass('hidden');
                         $('body').css('overflow', 'auto');
-                        $('#draftModal').removeClass(
-                            'show-modal'); // Tutup modal dengan animasi
+                        $('#draftModal').removeClass('show-modal');
 
                         $('#proceedToDraftBtn').prop('disabled', true).addClass(
                             'opacity-50 cursor-not-allowed').html(
-                            '<i class="fas fa-ban text-xs mr-2"></i> Draft Sudah Dibuat');
+                            '<i class="fas fa-ban text-xs mr-2"></i> Draft Created');
 
+                        // Modal success tanpa auto-close, dengan tombol styled
                         Swal.fire({
-                            toast: true,
-                            position: 'top-end',
                             icon: 'success',
-                            title: response.message || 'Draft Dibuat',
+                            title: 'Draft Successfully Created',
+                            html: `
+                                <p class="text-gray-800 text-sm">Your patent draft has been generated. You’ll be redirected shortly.</p>
+                                <p class="text-gray-600 text-sm mt-1">If the redirection doesn't happen, click the button below to continue manually.</p>
+                                <a href="${response.redirect_url}" target="_blank"
+                                    class="inline-block mt-4 px-3 py-1.5 rounded-lg bg-customBlue text-white text-sm font-medium shadow hover:bg-blue-700 transition-all duration-200">
+                                    <i class="fas fa-external-link-alt mr-2"></i> Redirect Now
+                                </a>
+                            `,
                             showConfirmButton: false,
-                            timer: 2000,
+                            allowOutsideClick: true,
+                            showCloseButton: true,
                             customClass: {
-                                popup: 'mt-[1rem]',
-                            }
-                        }).then(() => {
-                            if (response.redirect_url) {
-                                window.open(response.redirect_url, '_blank');
-                            } else {
-                                console.error(
-                                    'Redirect URL tidak tersedia di response.');
+                                popup: 'rounded-xl p-4 shadow-lg lg:w-[32rem]',
+                                title: 'text-lg font-semibold text-gray-800',
+                                htmlContainer: 'text-center',
+                            },
+                            didOpen: () => {
+                                setTimeout(() => {
+                                    if (response.redirect_url) {
+                                        window.open(response.redirect_url,
+                                            '_blank');
+                                    }
+                                }, 500);
                             }
                         });
                     },

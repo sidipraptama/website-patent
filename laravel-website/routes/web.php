@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('landing');
-});
+})->name('landing');
 
 
 // Menambahkan rute-rute yang ada ke dalam grup 'auth'

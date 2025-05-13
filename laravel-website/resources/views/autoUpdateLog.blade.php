@@ -3,7 +3,7 @@
 @section('title', 'Auto Update Logs')
 
 @section('content')
-    <div class="p-6 md:px-32 md:py-8 transition-all duration-300 ease-in-out min-w-[32rem]">
+    <div class="p-6 md:px-32 md:py-8 transition-all duration-300 ease-in-out">
         <x-navbar />
 
         <div class="p-6 bg-white rounded-lg shadow-md">
