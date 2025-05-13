@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import os
 
-MILVUS_HOST = os.getenv("MILVUS_HOST", "milvus-standalone")
+MILVUS_HOST = os.getenv("MILVUS_HOST", "localhost")
 MILVUS_PORT = os.getenv("MILVUS_PORT", "19530")
 MILVUS_COLLECTION = os.getenv("MILVUS_COLLECTION", "default")
 # MILVUS_COLLECTION_64 = "patent_vectors_64"
