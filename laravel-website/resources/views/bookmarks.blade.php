@@ -56,7 +56,7 @@
                                 <button class="absolute top-4 right-4 text-gray-500" onclick="event.stopPropagation(); toggleBookmark('${result.patent_id}');">
                                     <i class="fas fa-bookmark text-lg ${result.is_bookmarked ? 'text-yellow-400 hover:text-yellow-300' : 'text-gray-400 hover:text-gray-200'}" id="bookmark-icon-${result.patent_id}"></i>
                                 </button>
-                                <h3 class="font-semibold text-lg">${result.patent_title}</h3>
+                                <h3 class="font-semibold text-lg mr-8">${result.patent_title}</h3>
                                 <div class="flex text-gray-700 mt-1 text-xs">
                                     <span>ID: ${result.patent_id}</span>
                                     <span class="ml-4">Granted: ${result.patent_date ?? '-'}</span>
