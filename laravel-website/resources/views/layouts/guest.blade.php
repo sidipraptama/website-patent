@@ -16,8 +16,26 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans text-gray-900 antialiased">
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-32 sm:pt-0 bg-gray-100">
+<body class="font-sans bg-white text-gray-800 antialiased custom-background">
+    <style>
+        .custom-background::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('{{ asset('images/background.svg') }}');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.52;
+            z-index: -10;
+            pointer-events: none;
+            mix-blend-mode: ;
+        }
+    </style>
+    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-32 sm:pt-0">
         <div>
             <a href="/">
                 <x-application-logo class="fill-current text-gray-500" />

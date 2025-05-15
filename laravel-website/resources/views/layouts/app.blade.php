@@ -24,7 +24,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-white text-gray-900 custom-background" x-init="initSidebar()">
+<body class="font-sans bg-white text-gray-900 antialiased custom-background" x-init="initSidebar()">
     <style>
         .custom-background::before {
             content: "";
