@@ -34,7 +34,7 @@
                     </div>
 
                     <!-- History List -->
-                    <div id="historyList" class="mt-2 space-y-2 max-h-[85vh] overflow-y-auto"></div>
+                    <div id="historyList" class="mt-2 space-y-2 max-h-[90vh] overflow-y-auto"></div>
                 </div>
             </aside>
 
