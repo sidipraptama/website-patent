@@ -19,6 +19,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="shortcut icon" href="{{ asset('favicon.png') }}" type="image/x-icon">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
