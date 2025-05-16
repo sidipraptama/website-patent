@@ -478,7 +478,7 @@
                                 <p class="text-gray-800 text-sm">Your patent draft has been generated. You’ll be redirected shortly.</p>
                                 <p class="text-gray-600 text-sm mt-1">If the redirection doesn't happen, click the button below to continue manually.</p>
                                 <a href="${response.redirect_url}" target="_blank"
-                                    class="inline-block mt-4 px-3 py-1.5 rounded-lg bg-customBlue text-white text-sm font-medium shadow hover:bg-blue-700 transition-all duration-200">
+                                    class="inline-block mt-4 px-3 py-1.5 rounded-lg bg-customBlue text-white text-sm font-medium shadow hover:bg-customBlue-hover transition-all duration-200">
                                     <i class="fas fa-external-link-alt mr-2"></i> Redirect Now
                                 </a>
                             `,
