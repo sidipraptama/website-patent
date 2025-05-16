@@ -12,7 +12,7 @@
                 x-transition:enter-start="opacity-0 translate-x-full" x-transition:enter-end="opacity-100 translate-x-0"
                 x-transition:leave="transition ease-in-out duration-300 transform"
                 x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 translate-x-full"
-                class="z-50 fixed top-0 right-0 bg-white h-screen p-4 pt-8 shadow-md w-[16rem] flex flex-col">
+                class="z-50 fixed top-0 right-0 bg-white h-screen p-4 pt-8 shadow-md w-[16rem] flex flex-col border border-gray-200">
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-md font-semibold text-gray-800">Search History</h2>
