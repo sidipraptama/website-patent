@@ -81,7 +81,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <h3 class="font-semibold text-lg line-clamp-1 mr-2">${draft.title}</h3>
+                                <h3 class="font-semibold text-lg line-clamp-1 mr-4">${draft.title}</h3>
                                 <p class="text-gray-500 mt-2 text-sm line-clamp-4">${draft.similarity_check.input_text}</p>
                             </div>
                         `).join('');
