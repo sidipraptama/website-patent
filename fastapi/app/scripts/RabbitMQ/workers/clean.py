@@ -10,6 +10,7 @@ from app.db.crud import update_latest_update_history, get_latest_update_history,
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 
+LATEST_VECTORIZE_FILE = "./storage/vectorize/latest_vectorize.txt"
 LATEST_DOWNLOAD_FILE = "./storage/download/latest_download.txt"
 LATEST_CLEAN_FILE = "./storage/clean/latest_clean.txt"
 OUTPUT_FILE = "./storage/clean/cleaned_patent.tsv"
@@ -65,10 +66,12 @@ def run(payload):
         logging.info("[⛔] Proses dibatalkan karena berstatus canceled.")
         print("[⛔] Proses dibatalkan karena berstatus canceled.")
         add_log("Proses dibatalkan karena berstatus canceled.")
+        update_latest_update_history(status=UpdateHistoryStatus.CANCELED.value, description="Proses dibatalkan", completed_at=datetime.now())
         return
 
     try:
         # Baca tanggal latest_download dan latest_clean
+        latest_vectorize = read_file_content(LATEST_VECTORIZE_FILE, latest_history_id=latest_history["update_history_id"])
         latest_download = read_file_content(LATEST_DOWNLOAD_FILE, latest_history_id=latest_history["update_history_id"])
         latest_clean = read_file_content(LATEST_CLEAN_FILE, latest_history_id=latest_history["update_history_id"])
 
@@ -89,6 +92,10 @@ def run(payload):
             os.makedirs(EXTRACT_DIR)
 
         if os.path.exists(OUTPUT_FILE) and latest_clean >= latest_download:
+            if latest_clean == latest_vectorize:
+                logging.info("✅ File cleaned sudah di-vektorisasi sebelumnya. Tidak perlu kirim lagi.")
+                return
+            
             logging.info(f"[📂] File cleaned sudah ada dan up-to-date.")
             logging.info("➡️ Mengirim ke tugas vectorize...")
             add_log("✅ File cleaned sudah ada dan up-to-date. Mengirim ke tugas vectorize...")
@@ -130,13 +137,21 @@ def run(payload):
         merged = merged.drop(columns=["withdrawn", "filename"], errors="ignore")
         merged["patent_date"] = pd.to_datetime(merged["patent_date"], errors="coerce")
 
-        # Filter berdasarkan tanggal latest_clean
-        add_log(f"Filter data berdasarkan tanggal {latest_clean}...")
+        # Setelah proses merge dan konversi tanggal
+        merged["patent_date"] = pd.to_datetime(merged["patent_date"], errors="coerce")
+        merged["patent_abstract"] = merged["patent_abstract"].astype(str).str.strip()
+
+        # Pisahkan data lama dan baru
+        existing_data = merged[merged["patent_date"] <= latest_clean]  # ✅ Tambahan untuk anti-duplikat
         filtered = merged[merged["patent_date"] > latest_clean]
 
+        # Filter hanya abstrak yang belum ada sebelumnya (berdasarkan data lama)
+        existing_abstracts = set(existing_data['patent_abstract'].dropna().str.strip())  # ✅
+        filtered = filtered[~filtered['patent_abstract'].str.strip().isin(existing_abstracts)]  # ✅
+
         if filtered.empty:
-            logging.info("✅ Tidak ada data baru setelah tanggal terakhir clean.")
-            add_log("Tidak ada data baru setelah tanggal terakhir clean.")
+            logging.info("✅ Tidak ada data baru yang valid setelah filter duplikat abstrak.")
+            add_log("Tidak ada data baru yang valid setelah filter duplikat abstrak.")
             return
 
         # Dedup dan urutkan

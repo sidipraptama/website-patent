@@ -1,3 +1,4 @@
+from datetime import datetime
 from app.db.mysql import get_mysql_connection
 
 def create_update_history(status=None, started_at=None, completed_at=None, description=None):
@@ -103,8 +104,8 @@ def add_log(message: str):
             update_history_id = result["update_history_id"]
             status = result["status"]
 
-            if status != 0:
-                print(f"⚠️ Status update_history_id {update_history_id} bukan 'Ongoing' (status=0). Log tidak ditambahkan.")
+            if status not in (0, 3):
+                print(f"⚠️ Status update_history_id {update_history_id} bukan 'Ongoing atau Canceled' (status=0). Log tidak ditambahkan.")
                 return
 
             # Insert log
@@ -134,5 +135,27 @@ def get_latest_update_history():
                 print("❌ Tidak ada data update_history.")
                 return None
             return result  # Bisa akses seperti result["status"]
+    finally:
+        conn.close()
+
+def update_latest_updated_at():
+    conn = get_mysql_connection()
+    try:
+        with conn.cursor() as cursor:
+            now = datetime.now()
+
+            sql = """
+                UPDATE update_settings
+                SET last_updated_at = %s
+                ORDER BY id DESC
+                LIMIT 1
+            """
+            cursor.execute(sql, (now,))
+            conn.commit()
+            print(f"✅ latest_updated_at berhasil diperbarui untuk 1 data terbaru.")
+            return True
+    except Exception as e:
+        print(f"❌ Gagal memperbarui latest_updated_at: {e}")
+        return False
     finally:
         conn.close()

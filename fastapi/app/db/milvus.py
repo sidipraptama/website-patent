@@ -23,6 +23,7 @@ def connect_milvus():
         _ = utility.list_collections(using="default")
         milvus_available = True
         logging.info("Milvus connected successfully.")
+        logging.info(f"Existing collections: {utility.list_collections(using='default')}")
     except Exception as e:
         logging.warning(f"Milvus not available: {e}")
         milvus_available = False

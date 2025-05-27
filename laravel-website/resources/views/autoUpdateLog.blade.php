@@ -13,6 +13,25 @@
                 </p>
 
                 <div class="flex items-center space-x-3 ml-auto">
+                    <!-- Label + Dropdown -->
+                    <form id="updateSettingForm" method="POST" action="{{ route('update.setting.save') }}"
+                        class="flex items-center space-x-2">
+                        @csrf
+                        <label for="interval" class="text-sm text-gray-600 font-medium">Interval Update:</label>
+                        <select id="interval" name="interval"
+                            onchange="document.getElementById('updateSettingForm').submit()"
+                            class="bg-white hover:bg-gray-100 border border-gray-200 text-customBlue text-sm font-medium py-1.5 px-3 rounded-lg transition focus:outline-none focus:ring-1 focus:ring-customBlue cursor-pointer">
+                            <option disabled selected hidden>Auto Update Interval</option>
+                            <option value="daily" {{ $currentInterval == 'daily' ? 'selected' : '' }}>Daily</option>
+                            <option value="weekly" {{ $currentInterval == 'weekly' ? 'selected' : '' }}>Weekly</option>
+                            <option value="monthly" {{ $currentInterval == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                            <option value="quarterly" {{ $currentInterval == 'quarterly' ? 'selected' : '' }}>Quarterly
+                            </option>
+                            <option value="yearly" {{ $currentInterval == 'yearly' ? 'selected' : '' }}>Yearly</option>
+                        </select>
+                    </form>
+
+                    <!-- Tombol Send -->
                     <button id="sendRabbitBtn"
                         class="bg-white hover:bg-gray-100 border border-gray-200 text-customBlue text-sm font-medium py-1.5 px-3 rounded-lg transition flex items-center space-x-2">
                         <i class="fas fa-paper-plane"></i>
@@ -98,7 +117,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="pt-2 flex justify-end">
+            <div class="pt-2 flex justify-end hidden">
                 <button id="cancelUpdateBtn"
                     class="bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition duration-200">
                     Cancel Update
@@ -446,35 +465,41 @@
 
         // Send to RabbitMQ
         document.getElementById('sendRabbitBtn').addEventListener('click', function() {
-            fetch('{{ route('send.rabbit') }}')
-                .then(response => response.json())
-                .then(data => {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: data.message || 'Berhasil dikirim ke RabbitMQ!',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        customClass: {
-                            popup: 'mt-[1rem]'
-                        }
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'Gagal mengirim ke RabbitMQ!',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        customClass: {
-                            popup: 'mt-[1rem]'
-                        }
-                    });
-                });
+            Swal.fire({
+                title: 'Kirim permintaan update?',
+                text: 'Permintaan akan dikirim ke RabbitMQ untuk diproses.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, kirim',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('{{ route('send.rabbit') }}')
+                        .then(response => response.json())
+                        .then(data => {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: data.message || 'Berhasil dikirim ke RabbitMQ!',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'error',
+                                title: 'Gagal mengirim ke RabbitMQ!',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        });
+                }
+            });
         });
     </script>
 @endsection

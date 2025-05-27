@@ -8,6 +8,7 @@ use App\Http\Controllers\PatentSearchController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RabbitController;
 use App\Http\Controllers\SimilaritySearchController;
+use App\Http\Controllers\UpdateSettingsController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
@@ -21,12 +22,6 @@ Route::get('/', function () {
 
 // Menambahkan rute-rute yang ada ke dalam grup 'auth'
 Route::middleware('auth')->group(function () {
-
-
-    // Route::get('/similarity-search', function () {
-    //     return view('similaritySearch');
-    // })->name('similarity-search');
-
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::prefix('dashboard')->group(function () {
         Route::get('/statistics', [DashboardController::class, 'fetchPatentStatistics'])->name('dashboard.statistics');
@@ -37,7 +32,6 @@ Route::middleware('auth')->group(function () {
     Route::prefix('patent')->group(function () {
         Route::get('/search', [PatentSearchController::class, 'search'])->name('patent.search');
         Route::post('/bookmark', [PatentSearchController::class, 'bookmark'])->name('patent.bookmark');
-        // Route::get('/similarity', [PatentSearchController::class, 'similaritySearch'])->name('search.similarity');
     });
 
     Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks');
@@ -71,7 +65,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/fetch-update-history', [AutoUpdateController::class, 'fetchUpdateHistory'])->name('fetch-update-history');
         Route::get('/update-history/{id}', [AutoUpdateController::class, 'getDetailHistory'])->name('update.history.detail');
         Route::post('/update/cancel', [AutoUpdateController::class, 'cancel'])->name('update.cancel');
-
+        // routes/web.php
+        Route::post('/update-setting/save', [UpdateSettingsController::class, 'save'])->name('update.setting.save');
     });
 
     Route::get('/send-rabbit', [RabbitController::class, 'send'])->name('send.rabbit');

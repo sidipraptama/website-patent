@@ -26,7 +26,16 @@ def callback(ch, method, properties, body):
         print(f"[📥] Received task: {task}")
 
         latest_history = get_latest_update_history()
-        if latest_history and latest_history.get("status") != 0:
+
+        # Kondisi untuk buat update_history baru:
+        # - latest_history ada
+        # - status bukan ongoing (0) dan bukan canceled (2)
+        # - sudah completed_at terisi
+        # - dan task baru **berbeda** dengan task yang terakhir selesai
+        if latest_history and \
+        latest_history.get("status") not in [0, 2] and \
+        latest_history.get("completed_at") is not None and \
+        latest_history.get("description") != f"Proses {task} berhasil.":
             update_history_id = create_update_history(
                 status=0,
                 started_at=datetime.now(),
@@ -82,8 +91,8 @@ def start_consumer():
             latest_history = get_latest_update_history()
             update_history_id = latest_history["update_history_id"] if latest_history else None
 
-            if update_history_id:
-                add_log("Menunggu tugas baru...")
+            # if update_history_id:
+            #     add_log("Menunggu tugas baru...")
 
             channel.start_consuming()
 

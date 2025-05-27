@@ -11,13 +11,11 @@ import nltk
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
 from gensim.utils import simple_preprocess
-from gensim.models import Word2Vec, TfidfModel
-from gensim.corpora import Dictionary
-from gensim.models.phrases import Phraser
 
 from app.scripts.RabbitMQ.producer import send_message
 from app.config.constants import UpdateHistoryStatus
 from app.db.crud import update_latest_update_history, get_latest_update_history, add_log
+from app.services.vectorizerSBERTa import get_text_embedding_sberta, get_batch_embeddings_sberta, preprocess_text_sberta
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
@@ -28,17 +26,12 @@ nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 
 # Path constants
+LATEST_MILVUS_FILE = "./storage/save/latest_milvus.txt"
+LATEST_ELASTIC_FILE = "./storage/save/latest_elastic.txt"
 LATEST_VECTORIZE_FILE = "./storage/vectorize/latest_vectorize.txt"
 LATEST_CLEAN_FILE = "./storage/clean/latest_clean.txt"
 CLEANED_FILE = "./storage/clean/cleaned_patent.tsv"
 OUTPUT_DIR = "./storage/vectorize/embeddings"
-MODEL_PATH = "./patent-tfidf-w2v"
-
-# Load models
-w2v_model = Word2Vec.load(f"{MODEL_PATH}/w2v.m")
-dictionary = Dictionary.load(f"{MODEL_PATH}/docs_dict_11_2.d")
-tfidf_model = TfidfModel.load(f"{MODEL_PATH}/model_tfidf_11_2.m")
-bigram_model = Phraser.load(f"{MODEL_PATH}/bigram.m")
 
 # Vectorize settings
 BATCH_SIZE = 100
@@ -65,37 +58,9 @@ def write_file_content(path, content, latest_history_id=None):
         add_log(f"Gagal menulis ke {path}: {e}")
         raise
 
-def preprocess_text(text):
-    sentences = sent_tokenize(text.lower())
-    clean = []
-    for sent in sentences:
-        tokens = simple_preprocess(sent)
-        tokens = [word for word in tokens if word not in stop_words]
-        clean.append(tokens)
-    return clean
-
-def apply_bigram(tokens):
-    return [bigram_model[t] for t in tokens]
-
-def get_tfidf(tokens):
-    bow = dictionary.doc2bow(itertools.chain(*tokens))
-    return dict(tfidf_model[bow])
-
-def compute_vector(tokens):
-    tfidf = get_tfidf(tokens)
-    vectors = []
-    weights = []
-
-    for word_id, weight in tfidf.items():
-        word = dictionary[word_id]
-        if word in w2v_model.wv:
-            vectors.append(w2v_model.wv[word] * weight)
-            weights.append(weight)
-
-    if vectors:
-        return np.sum(vectors, axis=0) / np.sum(weights)
-    else:
-        return np.zeros(w2v_model.vector_size)
+def batchify(lst, batch_size):
+    for i in range(0, len(lst), batch_size):
+        yield lst[i:i + batch_size]
 
 def run(payload):
     latest_history = payload.get("latest_history", {})
@@ -109,12 +74,15 @@ def run(payload):
         logging.info("[⛔] Proses dibatalkan karena berstatus canceled.")
         print("[⛔] Proses dibatalkan karena berstatus canceled.")
         add_log("Proses dibatalkan karena berstatus canceled.")
+        update_latest_update_history(status=UpdateHistoryStatus.CANCELED.value, description="Proses dibatalkan", completed_at=datetime.now())
         return
 
     try:
         # Baca tanggal terakhir dari proses
         latest_clean = read_file_content(LATEST_CLEAN_FILE, latest_history_id=latest_history["update_history_id"])
         latest_vectorize = read_file_content(LATEST_VECTORIZE_FILE, latest_history_id=latest_history["update_history_id"])
+        latest_elastic = read_file_content(LATEST_ELASTIC_FILE, latest_history_id=latest_history["update_history_id"])
+        latest_milvus = read_file_content(LATEST_MILVUS_FILE, latest_history_id=latest_history["update_history_id"])
 
         if not os.path.exists(CLEANED_FILE):
             add_log("File cleaned tidak ditemukan.")
@@ -123,6 +91,9 @@ def run(payload):
 
         # Jika vectorize sudah update, lanjut ke proses simpan
         if latest_vectorize >= latest_clean:
+            if latest_vectorize == latest_milvus and latest_vectorize == latest_elastic:
+                logging.info("✅ Data vectorize sudah disimpan sebelumnya. Tidak perlu lanjut ke save.")
+                return
             logging.info("[📦] Data sudah diproses vektorisasi.")
             logging.info("➡️ Mengirim ke tugas save...")
             add_log("✅ Data sudah diproses vektorisasi. Mengirim ke tugas save...")
@@ -150,8 +121,8 @@ def run(payload):
                 add_log(f"Gagal menghapus {file_path}. Error: {e}")
 
         # Filter berdasarkan tanggal latest_vectorize
-        if latest_vectorize:
-            data = data[data["patent_date"] > latest_vectorize]
+        # if latest_vectorize:
+        #     data = data[data["patent_date"] > latest_vectorize]
 
         if data.empty:
             logging.info("✅ Tidak ada data baru untuk vektorisasi.")
@@ -168,11 +139,14 @@ def run(payload):
             ids = batch['patent_id'].tolist()
 
             embeddings = []
-            for text in abstracts:
-                tokens = preprocess_text(text)
-                bigrams = apply_bigram(tokens)
-                vector = compute_vector(bigrams)
-                embeddings.append(vector)
+            for batch in batchify(abstracts, 100):
+                try:
+                    vectors = get_batch_embeddings_sberta(batch)
+                    embeddings.extend(vectors)
+                except Exception as e:
+                    logging.warning(f"⚠️ Gagal mendapatkan embedding untuk batch. Error: {e}")
+                    add_log(f"Gagal embedding batch: {e}")
+                    embeddings.extend([np.zeros(768) for _ in batch])
 
             embeddings = np.array(embeddings)
             output_file = os.path.join(OUTPUT_DIR, f'embeddings_batch_{i}.npz')

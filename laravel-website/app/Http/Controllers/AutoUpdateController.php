@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\UpdateHistory;
 use App\Models\UpdateLog;
+use App\Models\UpdateSetting;
 use Illuminate\Http\Request;
 
 class AutoUpdateController extends Controller
 {
     public function index()
     {
-        return view('autoUpdateLog');
+        $currentInterval = UpdateSetting::first()->interval ?? 'daily';
+        return view('autoUpdateLog', compact('currentInterval'));
     }
 
     public function fetchUpdateHistory()

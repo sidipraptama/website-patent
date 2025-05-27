@@ -28,3 +28,17 @@ def get_text_embedding_sberta(text):
     embedding = model_sberta.encode(text, convert_to_tensor=True).cpu().numpy()
     normalized_embedding = normalize([embedding], norm='l2')
     return normalized_embedding[0]
+
+# Batch embedding function
+def get_batch_embeddings_sberta(texts):
+    # Preprocess seluruh teks
+    processed_texts = [preprocess_text_sberta(text) for text in texts]
+    
+    # Encode ke bentuk vektor
+    embeddings = model_sberta.encode(
+        processed_texts, 
+        convert_to_numpy=True, 
+        normalize_embeddings=True  # Sudah L2-normalized langsung
+    )
+    
+    return embeddings

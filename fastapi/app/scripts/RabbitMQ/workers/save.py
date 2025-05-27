@@ -9,7 +9,7 @@ from elasticsearch import Elasticsearch
 from datetime import datetime
 
 from app.config.constants import UpdateHistoryStatus
-from app.db.crud import update_latest_update_history, get_latest_update_history, add_log
+from app.db.crud import update_latest_update_history, get_latest_update_history, add_log, update_latest_updated_at
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
@@ -18,10 +18,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(me
 CHECKPOINT_FILE = "./storage/save/check_point.txt"
 VECTORIZE_FOLDER = "./storage/vectorize/embeddings"
 ELASTIC_DATA_FILE = "./storage/clean/cleaned_patent.tsv"
-MILVUS_COLLECTION_NAME = "patent_vectors_tfidf"
+MILVUS_COLLECTION_NAME = "patent_vectors_sberta"
 BATCH_SIZE = 1000
 FILES_PER_BATCH = 10
-EMBEDDING_DIM = 300
+EMBEDDING_DIM = 768
 LATEST_MILVUS_FILE = "./storage/save/latest_milvus.txt"
 LATEST_ELASTIC_FILE = "./storage/save/latest_elastic.txt"
 LATEST_VECTORIZE_FILE = "./storage/vectorize/latest_vectorize.txt"
@@ -163,6 +163,7 @@ def run(payload):
         logging.info("[⛔] Proses dibatalkan karena berstatus canceled.")
         print("[⛔] Proses dibatalkan karena berstatus canceled.")
         add_log("Proses dibatalkan karena berstatus canceled.")
+        update_latest_update_history(status=UpdateHistoryStatus.CANCELED.value, description="Proses dibatalkan", completed_at=datetime.now())
         return
     
     try:
@@ -241,6 +242,11 @@ def run(payload):
             logging.info("✅ Data di Milvus sudah up-to-date.")
             add_log("Data di Milvus sudah up-to-date.")
 
+        # Membaca latest_milvus, latest_elastic, dan latest_vectorize
+        latest_milvus = read_file_content(LATEST_MILVUS_FILE, latest_history_id=latest_history["update_history_id"])
+        latest_elastic = read_file_content(LATEST_ELASTIC_FILE, latest_history_id=latest_history["update_history_id"])
+        latest_vectorize = read_file_content(LATEST_VECTORIZE_FILE, latest_history_id=latest_history["update_history_id"])
+
         # Proses ke Elasticsearch jika latest_elastic lebih tua dari latest_milvus
         if latest_elastic < latest_milvus:
             logging.info("🚀 Proses insert ke Elasticsearch dimulai...")
@@ -253,6 +259,11 @@ def run(payload):
             logging.info("✅ Data di Elasticsearch sudah up-to-date.")
             add_log("Data di Elasticsearch sudah up-to-date.")
 
+        # Membaca latest_milvus, latest_elastic, dan latest_vectorize
+        latest_milvus = read_file_content(LATEST_MILVUS_FILE, latest_history_id=latest_history["update_history_id"])
+        latest_elastic = read_file_content(LATEST_ELASTIC_FILE, latest_history_id=latest_history["update_history_id"])
+        latest_vectorize = read_file_content(LATEST_VECTORIZE_FILE, latest_history_id=latest_history["update_history_id"])
+
         if latest_elastic >= latest_milvus and latest_milvus >= latest_vectorize:
             add_log("✅ Proses save selesai.")
             update_latest_update_history(
@@ -260,6 +271,7 @@ def run(payload):
                 description="Proses save berhasil.",
                 completed_at=datetime.now()
             )
+            update_latest_updated_at()
 
     except Exception as e:
         logging.error(f"❌ Terjadi kesalahan saat save data: {e}")

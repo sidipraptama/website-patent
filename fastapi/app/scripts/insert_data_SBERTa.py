@@ -12,13 +12,13 @@ from app.db.milvus import (
 from pymilvus import utility
 
 # Konfigurasi
-NPZ_FOLDER = "./data/sberta_v2_removed_common_words"
+NPZ_FOLDER = "./data/sberta_2019-2024_v2"
 CHECKPOINT_FILE = "./checkpoint_SBERTa.txt"
 COLLECTION_NAME = "patent_vectors_sberta"
 FILES_PER_BATCH = 10
 BATCH_SIZE = 1000
 EMBEDDING_DIM = 768
-COMPACT_THRESHOLD = 50000  # Compact setiap 50rb data
+COMPACT_THRESHOLD = 50000
 
 def prepare_milvus():
     """Menyiapkan koneksi dan koleksi di Milvus."""

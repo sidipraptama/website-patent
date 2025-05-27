@@ -1,4 +1,4 @@
-from app.db.elastic import create_index, bulk_insert_patents
+from app.db.elastic import create_index, bulk_insert_patents, delete_entire_index
 from elasticsearch import Elasticsearch
 import pandas as pd
 
@@ -19,6 +19,7 @@ def read_tsv(file_path):
 
 # Main function untuk insert data
 if __name__ == "__main__":
+    delete_entire_index()
     # Buat index kalau belum ada
     create_index()
 

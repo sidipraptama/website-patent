@@ -18,6 +18,7 @@ from app.db.milvus import (
     reset_collection_all,
     check_index
 )
+from app.db.crud import update_latest_update_history, get_latest_update_history, add_log, update_latest_updated_at
 
 # connect_milvus()
 
@@ -41,9 +42,9 @@ connect_milvus()
 reset_collection_all("patent_vectors_tfidf")
 
 # connect_milvus()
-create_collection_tfidf()
-create_index_tfidf()
-check_index_tfidf()
+# create_collection_tfidf()
+# create_index_tfidf()
+# check_index_tfidf()
 
 # connect_milvus()
 # check_index() 

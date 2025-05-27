@@ -150,6 +150,7 @@ def run(payload):
         logging.info("[⛔] Proses dibatalkan karena berstatus canceled.")
         print("[⛔] Proses dibatalkan karena berstatus canceled.")
         add_log("Proses dibatalkan karena berstatus canceled.")
+        update_latest_update_history(status=UpdateHistoryStatus.CANCELED.value, description="Proses dibatalkan", completed_at=datetime.now())
         return
 
     logging.info("[📡] Mengecek versi terbaru data paten...")
