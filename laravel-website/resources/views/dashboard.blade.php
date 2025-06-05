@@ -3,6 +3,13 @@
 @section('title', 'Dashboard')
 
 @section('content')
+    <style>
+        #admin-stats>div {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+    </style>
+
     <div class="p-6 md:px-32 md:py-8 transition-all duration-300 ease-in-out">
         <x-navbar />
 
@@ -14,15 +21,20 @@
                     <p class="text-slate-600 mt-1">Here’s what’s happening with your patent system today.</p>
                 </div>
                 {{-- <div class="hidden md:block">
-                <img src="{{ asset('images/patent_image.jpg') }}" alt="Dashboard Illustration"
-                    class="h-28 rounded-lg shadow-sm">
-            </div> --}}
+                    <img src="{{ asset('images/patent_image.jpg') }}" alt="Dashboard Illustration"
+                         class="h-28 rounded-lg shadow-sm">
+                </div> --}}
             </div>
 
+            <!-- Admin Stats -->
+            @if (Auth::user() && Auth::user()->role === 'admin')
+                <div id="admin-stats" class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4"></div>
+            @endif
+
             <!-- Statistics and Chart Section -->
-            <div class="flex flex-col lg:flex-row gap-4 mt-4">
+            <div class="grid lg:grid-cols-3 lg:flex-row gap-4 mt-4">
                 <!-- Statistic Cards -->
-                <div id="patent-statistics" class="flex flex-col gap-4 w-full lg:w-1/3">
+                <div id="patent-statistics" class="flex flex-col col-span-1 gap-4 w-full">
                     <div id="stats-loading"
                         class="flex items-center justify-center py-12 bg-white border border-gray-200 rounded-lg shadow-sm h-full">
                         <svg class="animate-spin h-6 w-6 text-blue-500 mr-2" xmlns="http://www.w3.org/2000/svg"
@@ -35,11 +47,10 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg p-4 w-full lg:w-2/3 border border-gray-200 shadow-sm">
+                <div class="col-span-1 lg:col-span-2 rounded-lg p-4 w-full border border-gray-200 shadow-sm">
                     <h2 class="text-sm text-slate-500 uppercase tracking-wide mb-4">Patent Type Distribution</h2>
 
                     <div class="relative h-full w-full flex justify-center items-center md:pb-8">
-                        <!-- Optional: loading overlay -->
                         <div id="pieChartLoading"
                             class="absolute inset-0 flex justify-center items-center z-10 bg-white/80">
                             <svg class="animate-spin h-6 w-6 text-blue-500 mr-2" xmlns="http://www.w3.org/2000/svg"
@@ -51,7 +62,6 @@
                             <span class="text-slate-700 text-sm">Loading chart...</span>
                         </div>
 
-                        <!-- Wrapper for the canvas -->
                         <div
                             class="relative w-[80%] h-[80%] max-h-[16rem] md:max-h-[20rem] flex justify-center items-center p-4 md:p-0">
                             <canvas id="patentPieChart" class="w-full h-full"></canvas>
@@ -81,6 +91,8 @@
 @endsection
 
 @section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Pastikan ini ada di layout atau sini -->
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const url = "{{ route('dashboard.statistics') }}";
@@ -89,12 +101,13 @@
             const lineChartLoading = document.getElementById('lineChartLoading');
             const loadingText = document.getElementById('stats-loading');
 
+            // Fetch statistics data
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     const container = document.getElementById('patent-statistics');
-                    loadingText.remove();
-                    pieChartLoading.remove();
+                    if (loadingText) loadingText.remove();
+                    if (pieChartLoading) pieChartLoading.remove();
 
                     const createCard = (title, value, colorHex) => {
                         const div = document.createElement('div');
@@ -121,14 +134,7 @@
                     const counts = [];
                     const bgColors = [];
 
-                    const colorMap = [
-                        '#00609C',
-                        '#FFDD00',
-                        '#4C51BF',
-                        '#38B2AC',
-                        '#F56565',
-                        '#D53F8C',
-                    ];
+                    const colorMap = ['#00609C', '#FFDD00', '#4C51BF', '#38B2AC', '#F56565', '#D53F8C'];
 
                     container.appendChild(createCard('Total Patents', data.total, '#1f2937'));
 
@@ -183,7 +189,7 @@
             fetch(yearlyUrl)
                 .then(response => response.json())
                 .then(data => {
-                    lineChartLoading.remove();
+                    if (lineChartLoading) lineChartLoading.remove();
 
                     const years = data.map(entry => entry.year);
                     const counts = data.map(entry => entry.count);
@@ -197,9 +203,9 @@
                                 label: 'Number of Patents',
                                 data: counts,
                                 borderColor: '#00609C',
-                                backgroundColor: 'rgba(37, 99, 235, 0.05)', // Light fill
+                                backgroundColor: 'rgba(37, 99, 235, 0.05)',
                                 fill: true,
-                                tension: 0.4, // Smooth curve
+                                tension: 0.4,
                                 pointRadius: 4,
                                 pointHoverRadius: 6,
                             }]
@@ -234,6 +240,43 @@
                 .catch(error => {
                     console.error('Failed to load yearly data:', error);
                 });
+
+            @if (Auth::user() && Auth::user()->role === 'admin')
+                const adminStatsUrl = "{{ route('dashboard.adminStats') }}";
+                fetch(adminStatsUrl)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Unauthorized or failed');
+                        return response.json();
+                    })
+                    .then(data => {
+                        const adminStatsContainer = document.getElementById('admin-stats');
+
+                        // Ubah objek menjadi array agar bisa di-loop
+                        const statsArray = [{
+                                title: 'TOTAL SIMILARITY SEARCH',
+                                count: data.searchCount
+                            },
+                            {
+                                title: 'TOTAL DRAFT PATENTS',
+                                count: data.draftCount
+                            },
+                            {
+                                title: 'TOTAL MEMBERS',
+                                count: data.memberCount
+                            }
+                        ];
+
+                        adminStatsContainer.innerHTML = statsArray.map(stat => `
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                                <div class="text-sm text-slate-600">${stat.title}</div>
+                                <div class="text-2xl font-bold text-gray-800">${stat.count.toLocaleString()}</div>
+                            </div>
+                        `).join('');
+                    })
+                    .catch(() => {
+                        document.getElementById('admin-stats').style.display = 'none';
+                    });
+            @endif
         });
     </script>
 @endsection

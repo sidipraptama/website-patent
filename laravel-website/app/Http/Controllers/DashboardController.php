@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DraftPatent;
+use App\Models\SimilarityCheck;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -84,5 +88,24 @@ class DashboardController extends Controller
 
         // Fallback jika gagal
         return [];
+    }
+
+    public function getAdminStats()
+    {
+        $user = Auth::user();
+
+        if (!$user || $user->role !== 'admin') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $searchCount = SimilarityCheck::count();
+        $draftCount = DraftPatent::count();
+        $memberCount = User::where('role', 'user')->count();
+
+        return response()->json([
+            'searchCount' => $searchCount,
+            'draftCount' => $draftCount,
+            'memberCount' => $memberCount,
+        ]);
     }
 }

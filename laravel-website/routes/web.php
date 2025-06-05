@@ -24,6 +24,7 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::prefix('dashboard')->group(function () {
+        Route::get('/admin-stats', [DashboardController::class, 'getAdminStats'])->name('dashboard.adminStats');
         Route::get('/statistics', [DashboardController::class, 'fetchPatentStatistics'])->name('dashboard.statistics');
         Route::get('/statistics/yearlyeb', [DashboardController::class, 'fetchPatentStatisticsYearly'])->name('dashboard.statistics.yearly');
     });
