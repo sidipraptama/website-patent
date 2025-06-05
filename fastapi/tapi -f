@@ -1,0 +1,21 @@
+[0;1;32m●[0m patent-fastapi.service - Patent FastAPI Service
+     Loaded: loaded (/etc/systemd/system/patent-fastapi.service; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Wed 2025-05-14 13:55:36 UTC; 13h ago
+   Main PID: 2058 (gunicorn)
+      Tasks: 9 (limit: 9477)
+     Memory: 1.3G
+        CPU: 1min 46.990s
+     CGroup: /system.slice/patent-fastapi.service
+             ├─2058 /var/www/app/website-patent/fastapi/venv/bin/python3.11 /var/www/app/website-patent/fastapi/venv/bin/gunicorn app.main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8001 --timeout 720
+             └─2134 /var/www/app/website-patent/fastapi/venv/bin/python3.11 /var/www/app/website-patent/fastapi/venv/bin/gunicorn app.main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8001 --timeout 720
+
+May 15 03:28:59 srv821898 gunicorn[2134]: INFO:elastic_transport.transport:POST http://localhost:9200/patents/_search [status:200 duration:0.005s]
+May 15 03:28:59 srv821898 gunicorn[2134]: INFO:elastic_transport.transport:POST http://localhost:9200/patents/_search [status:200 duration:0.005s]
+May 15 03:28:59 srv821898 gunicorn[2134]: INFO:elastic_transport.transport:POST http://localhost:9200/patents/_search [status:200 duration:0.014s]
+May 15 03:29:09 srv821898 gunicorn[2134]: INFO:elastic_transport.transport:POST http://localhost:9200/patents/_search [status:200 duration:0.013s]
+May 15 03:30:00 srv821898 gunicorn[2134]: localhost 19530
+May 15 03:30:00 srv821898 gunicorn[2134]: Model 'PatentSBERTa' berhasil di-load di cpu.
+May 15 03:30:00 srv821898 gunicorn[2134]: Loading environment variables...
+May 15 03:30:04 srv821898 gunicorn[2134]: [197B blob data]
+May 15 03:30:16 srv821898 gunicorn[2134]: Nama koleksi: patent_vectors_sberta
+May 15 03:30:17 srv821898 gunicorn[2134]: [197B blob data]

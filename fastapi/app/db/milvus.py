@@ -235,7 +235,7 @@ def get_collection():
 def get_collection_sberta():
     print(f"Nama koleksi: patent_vectors_sberta")
     collection = Collection('patent_vectors_sberta', using="default")
-    # collection.load()
+    collection.load()
     return collection
 
 def get_collection_tfidf():
