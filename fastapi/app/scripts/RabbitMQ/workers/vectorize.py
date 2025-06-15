@@ -91,9 +91,9 @@ def run(payload):
 
         # Jika vectorize sudah update, lanjut ke proses simpan
         if latest_vectorize >= latest_clean:
-            if latest_vectorize == latest_milvus and latest_vectorize == latest_elastic:
-                logging.info("✅ Data vectorize sudah disimpan sebelumnya. Tidak perlu lanjut ke save.")
-                return
+            # if latest_vectorize == latest_milvus and latest_vectorize == latest_elastic:
+            #     logging.info("✅ Data vectorize sudah disimpan sebelumnya. Tidak perlu lanjut ke save.")
+            #     return
             logging.info("[📦] Data sudah diproses vektorisasi.")
             logging.info("➡️ Mengirim ke tugas save...")
             add_log("✅ Data sudah diproses vektorisasi. Mengirim ke tugas save...")
@@ -105,13 +105,14 @@ def run(payload):
         data["patent_date"] = pd.to_datetime(data["patent_date"], errors="coerce")
 
         # Kosongkan folder OUTPUT_DIR
+        add_log("Mengosongkan folder output untuk vektorisasi...")
         for filename in os.listdir(OUTPUT_DIR):
             file_path = os.path.join(OUTPUT_DIR, filename)
             try:
                 if os.path.isfile(file_path) or os.path.islink(file_path):
                     os.unlink(file_path)
                     logging.info(f"🗑️ Menghapus file {file_path}")
-                    add_log(f"Menghapus file {file_path}")
+                    # add_log(f"Menghapus file {file_path}")
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
                     logging.info(f"🗑️ Menghapus folder {file_path}")

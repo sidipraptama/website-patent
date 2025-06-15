@@ -44,16 +44,16 @@
                 <div class="bg-white shadow-md rounded-xl p-6 pt-8 w-full">
                     <div x-data="{ showGuide: true }" x-show="showGuide" class="relative mb-4 w-full">
                         <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded-lg text-sm">
-                            <strong class="block font-semibold mb-1">Abstract Input Guide:</strong>
+                            <strong class="block font-semibold mb-1">Panduan Pengisian Abstrak:</strong>
                             <ul class="list-disc list-inside space-y-1">
-                                <li>Use clear and descriptive language to explain your idea or invention.</li>
-                                <li>The text should be at least <strong>200 characters long</strong> to ensure optimal
-                                    analysis by the system.</li>
-                                <li>Include key details such as the purpose, how it works, and what makes it unique.
-                                </li>
-                                <li>Avoid including personal or sensitive information.</li>
-                                <li>Example: "An automated system for feeding pets using IoT and remote monitoring..."
-                                </li>
+                                <li>Gunakan bahasa yang jelas dan deskriptif untuk menjelaskan ide atau invensi Anda.</li>
+                                <li>Teks harus memiliki minimal <strong>100 kata</strong> agar sistem dapat menganalisis
+                                    secara optimal.</li>
+                                <li>Sertakan detail penting seperti tujuan, cara kerja, dan hal yang membuat invensi
+                                    tersebut unik.</li>
+                                <li>Hindari mencantumkan informasi pribadi atau sensitif.</li>
+                                <li>Contoh: "Sebuah sistem otomatis untuk memberi makan hewan peliharaan menggunakan
+                                    teknologi IoT dan pemantauan jarak jauh..."</li>
                             </ul>
                         </div>
                         <button @click="showGuide = false"
@@ -263,7 +263,44 @@
 
                                 if (response.check_results && response.check_results
                                     .length > 0) {
-                                    let html = '';
+                                    let html = `
+                                        <!-- Explanation Table Card -->
+                                        <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+                                            <h3 class="font-semibold text-lg mb-4">Penjelasan Skor Similarity</h3>
+                                            <table class="w-full text-sm text-left text-gray-700">
+                                                <thead class="text-xs uppercase text-gray-500 border-b">
+                                                    <tr>
+                                                        <th class="py-2">Kategori</th>
+                                                        <th class="py-2 px-4 text-center">Persentase</th>
+                                                        <th class="py-2">Penjelasan</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="border-b hover:bg-gray-50">
+                                                        <td class="py-2 font-semibold">Sangat Mirip (Identik atau Duplikat)</td>
+                                                        <td class="text-center">≥ 85%</td>
+                                                        <td class="py-2">Hampir seluruh ide dan formulasi teknis sama. Sangat tinggi risiko penolakan novelty. Disarankan: Jangan ajukan paten tanpa modifikasi signifikan.</td>
+                                                    </tr>
+                                                    <tr class="border-b hover:bg-gray-50">
+                                                        <td class="py-2 font-semibold">Mirip (Overlap Substansial)</td>
+                                                        <td class="text-center">75 - 84%</td>
+                                                        <td class="py-2">Banyak istilah teknis dan fitur serupa. Disarankan: Uji ulang novelty, fokus pada pembeda kunci.</td>
+                                                    </tr>
+                                                    <tr class="border-b hover:bg-gray-50">
+                                                        <td class="py-2 font-semibold">Cukup Mirip (Overlap Parsial)</td>
+                                                        <td class="text-center">40 - 74%</td>
+                                                        <td class="py-2">Kesamaan ide umum, tapi solusi berbeda. Disarankan: Pastikan diferensiasi tercermin dalam klaim.</td>
+                                                    </tr>
+                                                    <tr class="hover:bg-gray-50">
+                                                        <td class="py-2 font-semibold">Tidak Mirip (Berbeda Jelas)</td>
+                                                        <td class="text-center">&lt; 40%</td>
+                                                        <td class="py-2">Tidak ada kesamaan signifikan. Disarankan: Aman untuk drafting paten baru.</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    `;
+
                                     response.check_results.forEach(function(result) {
                                         html += `
                                     <div class="bg-white shadow-md rounded-lg p-6 flex justify-between items-center hover:shadow-lg relative group" onclick="window.open('https://patents.google.com/patent/US${result.patent_id}', '_blank')">
@@ -326,13 +363,14 @@
             const abstract = $('#abstractInput').val();
             const token = $('input[name="_token"]').val();
 
-            // Validasi panjang karakter minimum 200
-            if (abstract.length < 200) {
+            // Validasi panjang minimal 100 kata
+            const wordCount = abstract.trim().split(/\s+/).length;
+            if (wordCount < 100) {
                 Swal.fire({
                     toast: true,
                     position: 'top-end',
                     icon: 'warning',
-                    title: 'Text input harus memiliki minimal 200 karakter.',
+                    title: 'Abstrak harus memiliki minimal 100 kata.',
                     showConfirmButton: false,
                     timer: 3000,
                     customClass: {
@@ -355,37 +393,74 @@
                 },
                 success: function(response) {
                     // bersihkan hasil sebelumnya
-                    $('#resultWrapper div[role="abstractDisplay"]').text(abstract);
+                    $('#resultWrapper div[role="abstractDisplay"]').text(response.abstract);
                     $('#searchWrapper').addClass('hidden');
                     $('#resultWrapper').removeClass('hidden');
                     $('#resultContainer').html('');
 
                     if (response.data && response.data.length > 0) {
-                        let html = '';
+                        let html = `
+                            <!-- Explanation Table Card -->
+                            <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+                                <h3 class="font-semibold text-lg mb-4">Penjelasan Skor Similarity</h3>
+                                <table class="w-full text-sm text-left text-gray-700">
+                                    <thead class="text-xs uppercase text-gray-500 border-b">
+                                        <tr>
+                                            <th class="py-2">Kategori</th>
+                                            <th class="py-2 px-4 text-center">Persentase</th>
+                                            <th class="py-2">Penjelasan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="py-2 font-semibold">Sangat Mirip (Identik atau Duplikat)</td>
+                                            <td class="text-center">≥ 85%</td>
+                                            <td class="py-2">Hampir seluruh ide dan formulasi teknis sama. Sangat tinggi risiko penolakan novelty. Disarankan: Jangan ajukan paten tanpa modifikasi signifikan.</td>
+                                        </tr>
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="py-2 font-semibold">Mirip (Overlap Substansial)</td>
+                                            <td class="text-center">75 - 84%</td>
+                                            <td class="py-2">Banyak istilah teknis dan fitur serupa. Disarankan: Uji ulang novelty, fokus pada pembeda kunci.</td>
+                                        </tr>
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="py-2 font-semibold">Cukup Mirip (Overlap Parsial)</td>
+                                            <td class="text-center">40 - 74%</td>
+                                            <td class="py-2">Kesamaan ide umum, tapi solusi berbeda. Disarankan: Pastikan diferensiasi tercermin dalam klaim.</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 font-semibold">Tidak Mirip (Berbeda Jelas)</td>
+                                            <td class="text-center">&lt; 40%</td>
+                                            <td class="py-2">Tidak ada kesamaan signifikan. Disarankan: Aman untuk drafting paten baru.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+
                         response.data.forEach(function(result) {
                             html += `
-                        <div class="bg-white shadow-md rounded-lg p-6 flex justify-between items-center hover:shadow-lg relative group" onclick="window.open('https://patents.google.com/patent/US${result.patent_id}', '_blank')">
-                            <!-- Bookmark Button -->
-                            <button class="absolute top-4 right-4 text-gray-500 z-10" onclick="event.stopPropagation(); toggleBookmark('${result.patent_id}');">
-                                <i class="fas fa-bookmark text-lg ${result.is_bookmarked ? 'text-blue-500 hover:text-blue-300' : 'text-gray-400 hover:text-gray-200'}" id="bookmark-icon-${result.patent_id}"></i>
-                            </button>
+                            <div class="bg-white shadow-md rounded-lg p-6 flex justify-between items-center hover:shadow-lg relative group" onclick="window.open('https://patents.google.com/patent/US${result.patent_id}', '_blank')">
+                                <!-- Bookmark Button -->
+                                <button class="absolute top-4 right-4 text-gray-500 z-10" onclick="event.stopPropagation(); toggleBookmark('${result.patent_id}');">
+                                    <i class="fas fa-bookmark text-lg ${result.is_bookmarked ? 'text-blue-500 hover:text-blue-300' : 'text-gray-400 hover:text-gray-200'}" id="bookmark-icon-${result.patent_id}"></i>
+                                </button>
 
-                            <!-- Patent Content -->
-                            <div class="flex flex-col justify-start">
-                                <h3 class="font-semibold text-lg">${result.patent_title}</h3>
-                                <div class="flex text-gray-700 mt-1 text-sm">
-                                    <span>ID: ${result.patent_id}</span>
-                                    <span class="ml-4">Granted: ${result.patent_date}</span>
-                                    <span class="ml-4">Type: ${result.patent_type}</span>
+                                <!-- Patent Content -->
+                                <div class="flex flex-col justify-start">
+                                    <h3 class="font-semibold text-lg">${result.patent_title}</h3>
+                                    <div class="flex text-gray-700 mt-1 text-sm">
+                                        <span>ID: ${result.patent_id}</span>
+                                        <span class="ml-4">Granted: ${result.patent_date}</span>
+                                        <span class="ml-4">Type: ${result.patent_type}</span>
+                                    </div>
+                                    <p class="text-gray-500 text-sm mt-2 text-justify line-clamp-4">${result.patent_abstract}</p>
                                 </div>
-                                <p class="text-gray-500 text-sm mt-2 text-justify line-clamp-4">${result.patent_abstract}</p>
-                            </div>
 
-                            <div class="pl-6 flex items-center">
-                                <span class="text-4xl font-bold text-gray-800">${(result.score * 100).toFixed(3)}%</span>
+                                <div class="pl-6 flex items-center">
+                                    <span class="text-4xl font-bold text-gray-800">${(result.score * 100).toFixed(3)}%</span>
+                                </div>
                             </div>
-                        </div>
-                        `;
+                            `;
                         });
                         $('#resultContainer').html(html);
                     } else {

@@ -92,9 +92,9 @@ def run(payload):
             os.makedirs(EXTRACT_DIR)
 
         if os.path.exists(OUTPUT_FILE) and latest_clean >= latest_download:
-            if latest_clean == latest_vectorize:
-                logging.info("✅ File cleaned sudah di-vektorisasi sebelumnya. Tidak perlu kirim lagi.")
-                return
+            # if latest_clean == latest_vectorize:
+            #     logging.info("✅ File cleaned sudah di-vektorisasi sebelumnya. Tidak perlu kirim lagi.")
+            #     return
             
             logging.info(f"[📂] File cleaned sudah ada dan up-to-date.")
             logging.info("➡️ Mengirim ke tugas vectorize...")

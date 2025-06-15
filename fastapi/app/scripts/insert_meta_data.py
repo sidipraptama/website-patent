@@ -3,7 +3,7 @@ from elasticsearch import Elasticsearch
 import pandas as pd
 
 # Path ke file TSV
-DATA_FILE = "./data/filtered_patent_2021-2023.tsv"
+DATA_FILE = "./data/cleaned_data_2019-2024.tsv"
 
 # Buat koneksi ke Elasticsearch
 es = Elasticsearch("http://localhost:9200")
@@ -20,7 +20,7 @@ def read_tsv(file_path):
 # Main function untuk insert data
 if __name__ == "__main__":
     # delete_entire_index()
-    # Buat index kalau belum ada
+    # # Buat index kalau belum ada
     # create_index()
 
     # Baca data dari TSV

@@ -36,13 +36,13 @@ from app.db.milvus import (
 
 # from app.scripts.create_index import create_index, update_index
 
-connect_milvus()
-reset_collection_all("patent_vectors_sberta")
-
 # connect_milvus()
-#create_collection_sberta()
-#create_index_sberta()
-#check_index_sberta()
+# reset_collection_all("patent_vectors_sberta")
+
+connect_milvus()
+create_collection_sberta()
+create_index_sberta()
+check_index_sberta()
 
 # connect_milvus()
 # check_index() 

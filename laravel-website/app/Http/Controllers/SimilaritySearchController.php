@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Stichoza\GoogleTranslate\GoogleTranslate;
 use App\Models\Bookmark;
 use App\Models\DraftPatent;
 use App\Models\SimilarityCheck;
@@ -36,7 +37,21 @@ class SimilaritySearchController extends Controller
         return view('similaritySearch');
     }
 
-    // Endpoint untuk memproses similarity check
+    private function fixCapitalization($text)
+    {
+        // Pisahkan per kalimat berdasarkan tanda titik, tanda tanya, atau tanda seru
+        $sentences = preg_split('/(?<=[.?!])\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
+
+        // Format setiap kalimat: huruf pertama kapital, sisanya lowercase
+        $sentences = array_map(function ($sentence) {
+            $sentence = trim($sentence);
+            return ucfirst(strtolower($sentence));
+        }, $sentences);
+
+        // Gabungkan kembali kalimat
+        return implode(' ', $sentences);
+    }
+
     public function search(Request $request)
     {
         try {
@@ -45,14 +60,18 @@ class SimilaritySearchController extends Controller
                 'limit' => 'nullable|integer|min:1|max:50',
             ]);
 
-            $abstract = $validated['abstract'];
+            $originalAbstract = $validated['abstract'];
             $limit = $validated['limit'] ?? 50;
 
+            $translatedAbstract = (new GoogleTranslate('en'))->setSource('id')->translate($originalAbstract);
+            // $translatedAbstract = $this->fixCapitalization($translatedAbstractRaw);
+
+            // Proses similarity check ke FastAPI
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->apiKey,
             ])->timeout(60)
                 ->post($this->apiUrl, [
-                    'abstract' => $abstract,
+                    'abstract' => $translatedAbstract,
                     'limit' => $limit,
                 ]);
 
@@ -77,14 +96,14 @@ class SimilaritySearchController extends Controller
             // Simpan ke history
             $check = SimilarityCheck::create([
                 'user_id' => $userId,
-                'input_text' => $abstract,
+                'input_text' => $translatedAbstract,
             ]);
 
             // Simpan ke check_results
             $checkResults = [];
             foreach ($results as $result) {
                 if (!isset($result['score']) || !is_numeric($result['score'])) {
-                    continue; // skip data tidak valid
+                    continue;
                 }
 
                 $checkResults[] = [
@@ -101,6 +120,7 @@ class SimilaritySearchController extends Controller
             return response()->json([
                 'success' => true,
                 'check_id' => $check->check_id,
+                'abstract' => $translatedAbstract,
                 'data' => $results
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
