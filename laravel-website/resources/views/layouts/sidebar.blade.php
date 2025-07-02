@@ -4,7 +4,7 @@
     <!-- Logo -->
     <div x-show="sidebarOpen" class="flex justify-center items-center mt-3">
         <a class="w-[100%] flex justify-center items-center" href="{{ route('landing') }}">
-            <img src="{{ asset('images/logo.svg') }}" alt="Paten.AI Logo" class="h-12 w-[62%]">
+            <img src="{{ asset('images/logoutama.svg') }}" alt="Paten.AI Logo" class="h-12 w-[62%]">
         </a>
     </div>
 
