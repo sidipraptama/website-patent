@@ -1,4 +1,6 @@
 import os
+import logging
+from dotenv import load_dotenv
 from typing import List
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
@@ -7,7 +9,13 @@ from app.db.elastic import search_patents, get_latest_patents, get_patents_by_id
 
 router = APIRouter()
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+load_dotenv(dotenv_path="/root/website-patent/fastapi/.env", override=True)
+
 API_KEY = os.getenv("API_KEY")
+logger.info(f"Loaded API_KEY: {API_KEY}")
 
 class PatentSearchRequest(BaseModel):
     query: Optional[str] = None

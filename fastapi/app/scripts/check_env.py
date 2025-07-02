@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 
 # Load the .env file
-load_dotenv(dotenv_path=".env", override=True)
+load_dotenv(dotenv_path="/root/website-patent/fastapi/.env")
 
 # Print important environment variables
 print("APP_NAME:", os.getenv("APP_NAME"))

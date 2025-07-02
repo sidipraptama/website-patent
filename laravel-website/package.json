@@ -2,7 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build && mv public/build/.vite/manifest.json public/build/manifest.json",
+        "build": "vite build",
         "dev": "vite"
     },
     "devDependencies": {

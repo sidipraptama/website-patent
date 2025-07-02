@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 # Load .env
-load_dotenv(override=True)
+load_dotenv(dotenv_path="/root/website-patent/fastapi/.env")
 
 print("Loading environment variables...")
 

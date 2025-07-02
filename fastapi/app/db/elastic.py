@@ -5,6 +5,9 @@ import re
 import string
 import spacy
 import os
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path="/root/website-patent/fastapi/.env", override=True)
 
 # Elasticsearch configuration
 ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_HOST", "http://localhost:9200")

@@ -9,7 +9,7 @@ from app.db.milvus import (
 from pymilvus import utility
 
 # Konfigurasi
-NPZ_FOLDER = "./data/SBERTa_2021-2023"
+NPZ_FOLDER = "./data/sberta_2019-2024_v2"
 CHECKPOINT_FILE = "./checkpoint_SBERTa.txt"
 COLLECTION_NAME = "patent_vectors_sberta"
 FILES_PER_BATCH = 10

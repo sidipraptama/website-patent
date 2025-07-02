@@ -22,8 +22,8 @@ def download_dataset(dataset_name, save_path):
 
 if __name__ == "__main__":
     # Tentukan nama dataset dan path folder untuk menyimpan dataset
-    dataset_name = "sidipraptama/sberta-2024"
-    save_path = "/var/www/app/website-patent/fastapi/data"
+    dataset_name = "sidipraptama/sberta-2019-2024"
+    save_path = "data"
 
     # Panggil fungsi download
     download_dataset(dataset_name, save_path)
