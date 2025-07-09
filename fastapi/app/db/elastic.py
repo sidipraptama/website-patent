@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path="/root/website-patent/fastapi/.env", override=True)
 
 # Elasticsearch configuration
-ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_HOST", "http://localhost:9200")
+ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_HOST", "http://localhost::9200")
 ELASTICSEARCH_INDEX = os.getenv("ELASTICSEARCH_INDEX", "patents")
 
 # Connect to Elasticsearch

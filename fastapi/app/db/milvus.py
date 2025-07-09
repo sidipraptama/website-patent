@@ -229,7 +229,7 @@ def create_index_tfidf():
 def get_collection():
     print(f"Nama koleksi: {MILVUS_COLLECTION}")
     collection = Collection(MILVUS_COLLECTION, using="default")
-    # collection.load()
+    collection.load()
     return collection
 
 def get_collection_sberta():
