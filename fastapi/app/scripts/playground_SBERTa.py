@@ -19,7 +19,7 @@ from app.db.milvus import (
     check_index
 )
 
-# connect_milvus()
+connect_milvus()
 # def count_data_in_collection():
 #     # Menghubungkan ke Milvus
 #     collection = get_collection_sberta()  # Pastikan get_collection_sberta sudah benar
@@ -39,10 +39,10 @@ from app.db.milvus import (
 # connect_milvus()
 # reset_collection_all("patent_vectors_sberta")
 
-connect_milvus()
-create_collection_sberta()
-create_index_sberta()
-check_index_sberta()
+# connect_milvus()
+# create_collection_sberta()
+# create_index_sberta()
+# check_index_sberta()
 
 # connect_milvus()
 # check_index() 
