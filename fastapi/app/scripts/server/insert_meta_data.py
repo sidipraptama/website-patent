@@ -21,7 +21,7 @@ def read_tsv(file_path):
 if __name__ == "__main__":
     # delete_entire_index()
     # Buat index kalau belum ada
-    # create_index()
+    create_index()
 
     # Baca data dari TSV
     data = read_tsv(DATA_FILE)
