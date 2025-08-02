@@ -74,19 +74,6 @@ def create_collection_sberta():
     collection = Collection(name="patent_vectors_sberta", schema=schema)
     print(f"Koleksi patent_vectors_sberta berhasil dibuat!")
 
-def create_collection_tfidf():
-    if utility.has_collection("patent_vectors_tfidf"):
-        print(f"Koleksi patent_vectors_tfidf sudah ada.")
-        return
-
-    fields = [
-        FieldSchema(name="id", dtype=DataType.VARCHAR, max_length=20, is_primary=True),
-        FieldSchema(name="embeddings", dtype=DataType.FLOAT_VECTOR, dim=300)
-    ]
-    schema = CollectionSchema(fields, description="Patent Embeddings Collection")
-    collection = Collection(name="patent_vectors_tfidf", schema=schema)
-    print(f"Koleksi patent_vectors_tfidf berhasil dibuat!")
-
 def check_index():
     collection = get_collection()
     indexes = collection.indexes
@@ -102,14 +89,6 @@ def check_index_sberta():
         print(f"Index ditemukan di collection patent_vectors_sberta: {indexes}")
     else:
         print(f"Tidak ada index di collection patent_vectors_sberta")
-
-def check_index_tfidf():
-    collection = get_collection_tfidf()
-    indexes = collection.indexes
-    if indexes:
-        print(f"Index ditemukan di collection patent_vectors_tfidf: {indexes}")
-    else:
-        print(f"Tidak ada index di collection patent_vectors_tfidf")
 
 def create_index():
     collection = get_collection()
@@ -187,44 +166,6 @@ def create_index_sberta():
     except Exception as e:
         print(f"❌ Terjadi error saat membuat atau memuat index: {e}")
 
-def create_index_tfidf():
-    collection = get_collection_tfidf()
-
-    if not collection:
-        print("❌ Koleksi 'patent_vectors_tfidf' tidak ditemukan, tidak bisa membuat index.")
-        return
-
-    try:
-        # Cek apakah index sudah ada
-        if collection.has_index():
-            print("✅ Index sudah ditemukan untuk koleksi 'patent_vectors_tfidf'.")
-            return
-
-        # Konfigurasi index HNSW
-        index_params = {
-            "metric_type": "COSINE",    # Gunakan Cosine Similarity
-            "index_type": "HNSW",
-            "params": {
-                "M": 32,                # Maksimum koneksi antar node
-                "efConstruction": 200   # Jumlah kandidat saat membangun index
-            }
-        }
-
-        print("⚙️ Membuat index HNSW untuk koleksi 'patent_vectors_tfidf'...")
-        collection.create_index(field_name="embeddings", index_params=index_params)
-        print("✅ Index HNSW berhasil dibuat untuk koleksi 'patent_vectors_tfidf'.")
-
-        # Tampilkan informasi index setelah dibuat
-        index_info = collection.index()
-        print(f"🔍 Detail Index:\n{index_info}")
-
-        # Load collection ke memori
-        collection.load()
-        print("✅ Koleksi 'patent_vectors_tfidf' berhasil dimuat ke memori.")
-
-    except Exception as e:
-        print(f"❌ Terjadi error saat membuat atau memuat index: {e}")
-
 # Load koleksi
 def get_collection():
     print(f"Nama koleksi: {MILVUS_COLLECTION}")
@@ -279,29 +220,6 @@ def search_vectors_sberta(embedding, limit=10):
         "metric_type": "COSINE",
         "params": {
             "ef": 500
-        }
-    }
-
-    results = collection.search(
-        data=[embedding],
-        anns_field="embeddings",
-        param=search_params,
-        limit=limit,
-        output_fields=["id"]
-    )
-    return results
-
-def search_vectors_tfidf(embedding, limit=10):
-    collection = get_collection_tfidf()
-
-    # IVF
-    # search_params = {"metric_type": "COSINE", "params": {"nprobe": 10}}
-
-    # HNSW
-    search_params = {
-        "metric_type": "COSINE",
-        "params": {
-            "ef": 20000 # efConstruction: Jumlah kandidat yang dipertimbangkan saat membangun index.
         }
     }
 

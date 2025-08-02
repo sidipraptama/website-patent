@@ -118,45 +118,6 @@ def bulk_insert_patents(es, data_list, index_name="patents"):
         for error in e.errors[:5]:  # Print first 5 errors
             print(error)
 
-# def bulk_insert_patents(es, data_list, index_name="patents"):
-#     """
-#     Bulk insert multiple patents into Elasticsearch.
-#     Skips documents with duplicate patent_abstract (exact match).
-#     """
-#     actions = []
-#     skipped_count = 0
-
-#     for data in data_list:
-#         if isinstance(data, dict) and "patent_id" in data and "patent_abstract" in data:
-#             abstract = str(data["patent_abstract"]).strip() if data["patent_abstract"] is not None else ""
-#             if not is_abstract_duplicate(abstract, index_name):
-#                 data["patent_abstract"] = abstract  # Optional: overwrite with cleaned version
-#                 actions.append({
-#                     "_op_type": "index",
-#                     "_index": index_name,
-#                     "_id": data["patent_id"],
-#                     "_source": data
-#                 })
-#             else:
-#                 skipped_count += 1
-
-#     if actions:
-#         try:
-#             success, failed = bulk(es, actions, raise_on_error=False, ignore_status=[400, 409])
-#             print(f"✅ {success} documents inserted successfully!")
-#             if failed:
-#                 print(f"⚠️ {len(failed)} documents failed to insert.")
-#                 for error in failed[:5]:  # Print first 5 errors
-#                     print(error)
-#         except BulkIndexError as e:
-#             print(f"❌ Bulk index error: {e}")
-#             for error in e.errors[:5]:  # Print first 5 errors
-#                 print(error)
-#     else:
-#         print("⚠️ No new documents to insert.")
-
-#     print(f"🔁 {skipped_count} duplicate abstracts skipped.")
-
 # Search patents by title or abstract
 def search_patents(query, from_=0, size=10, sort=None, index_name=ELASTICSEARCH_INDEX):
     body = {

@@ -3,25 +3,28 @@ import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from app.db.milvus import (
     connect_milvus,
+    create_collection,
     insert_vectors_batch,
-    check_index
+    reset_collection,
+    create_index,
+    check_index_sberta
 )
 from pymilvus import utility
 
 # Konfigurasi
-NPZ_FOLDER = "./data/bert_patent_2019-2024/"
-CHECKPOINT_FILE = "./checkpoint.txt"
-COLLECTION_NAME = "patent_vectors"
+NPZ_FOLDER = "./data/sberta_2019-2024_v2"
+CHECKPOINT_FILE = "./checkpoint_SBERTa.txt"
+COLLECTION_NAME = "patent_vectors_sberta"
 FILES_PER_BATCH = 10
 BATCH_SIZE = 1000
-EMBEDDING_DIM = 1024
-COMPACT_THRESHOLD = 50000  # Compact setiap 50rb data
+EMBEDDING_DIM = 768
+COMPACT_THRESHOLD = 50000
 
 def prepare_milvus():
     """Menyiapkan koneksi dan koleksi di Milvus."""
     try:
         connect_milvus()
-        check_index()
+        check_index_sberta()
         print("✅ Milvus siap digunakan.")
     except Exception as e:
         print(f"❌ Gagal menyiapkan Milvus: {e}")
@@ -47,19 +50,30 @@ def process_npz_file(filepath):
             print(f"⚠️ Format salah di {filepath}, dilewati.")
             return None, None, filepath
 
-        patent_ids = data["ids"].astype(str)
+        patent_ids = data["ids"]
         embeddings = data["embeddings"]
 
-        if embeddings.shape[1] != EMBEDDING_DIM:
+        # Tangani embedding 1D (768,) menjadi (1, 768)
+        if embeddings.ndim == 1:
+            if embeddings.shape[0] != EMBEDDING_DIM:
+                print(f"⚠️ Dimensi salah di {filepath} (expected {EMBEDDING_DIM}), dilewati.")
+                return None, None, filepath
+            embeddings = embeddings.reshape(1, -1)
+            patent_ids = np.array([patent_ids.item() if patent_ids.shape == () else str(patent_ids[0])])
+
+        # Tangani array normal (n, 768)
+        elif embeddings.shape[1] != EMBEDDING_DIM:
             print(f"⚠️ Dimensi salah di {filepath}, dilewati.")
             return None, None, filepath
+        else:
+            patent_ids = patent_ids.astype(str)
 
         print(f"📂 Berhasil memuat {filepath} ({len(patent_ids)} data)")
         return patent_ids, embeddings, filepath
     except Exception as e:
         print(f"❌ Gagal memproses {filepath}: {e}")
         return None, None, filepath
-
+    
 def normalize_embeddings(embeddings):
     """Normalisasi vektor embeddings."""
     norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
@@ -69,29 +83,27 @@ def convert_to_float32(embeddings):
     """Konversi embeddings ke float32 jika perlu."""
     return embeddings.astype(np.float32) if embeddings.dtype != np.float32 else embeddings
 
-def insert_batch(all_ids, all_embeddings, last_success_file, total_inserted):
+def insert_batch(all_ids, all_embeddings, file_path, total_inserted):
     """Memasukkan batch data ke Milvus."""
     try:
         if not all_ids or not all_embeddings:
-            return last_success_file, total_inserted
+            return None, total_inserted
 
         all_embeddings = np.vstack(all_embeddings)
-        all_embeddings = normalize_embeddings(all_embeddings)
+        # all_embeddings = normalize_embeddings(all_embeddings)
         all_embeddings = convert_to_float32(all_embeddings)
 
         if len(all_ids) != all_embeddings.shape[0]:
             raise ValueError(f"❌ Misalignment: {len(all_ids)} vs {all_embeddings.shape[0]}")
 
         insert_vectors_batch(COLLECTION_NAME, all_ids, all_embeddings, BATCH_SIZE)
-        print(f"✅ {len(all_ids)} data di-insert.")
+        print(f"✅ {len(all_ids)} data di-insert dari file terakhir '{file_path}'")
 
         total_inserted += len(all_ids)
-
-        return last_success_file, total_inserted
+        return file_path, total_inserted  # file_path sebagai tanda file terakhir sukses
     except Exception as e:
-        print(f"❌ Gagal insert ke Milvus pada file terakhir '{last_success_file}': {e}")
-        return last_success_file, total_inserted
-
+        print(f"❌ Gagal insert ke Milvus pada file terakhir '{file_path}': {e}")
+        return None, total_inserted
 
 def main():
     prepare_milvus()
@@ -103,42 +115,41 @@ def main():
         files = files[files.index(last_processed) + 1:]
 
     all_ids, all_embeddings = [], []
-    last_success_file = None
     total_inserted = 0
     failed_files = []
 
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        futures = {executor.submit(process_npz_file, os.path.join(NPZ_FOLDER, f)): f for f in files}
-        for future in as_completed(futures):
-            patent_ids, embeddings, file_path = future.result()
-            if patent_ids is None or embeddings is None:
-                failed_files.append(file_path)
-                continue
+    for f in files:
+        file_path = os.path.join(NPZ_FOLDER, f)
+        patent_ids, embeddings, _ = process_npz_file(file_path)
 
-            all_ids.extend(patent_ids)
-            all_embeddings.append(embeddings)
+        if patent_ids is None or embeddings is None:
+            failed_files.append(file_path)
+            continue
 
-            if len(all_ids) >= BATCH_SIZE or len(all_embeddings) >= FILES_PER_BATCH:
-                success_file, total_inserted = insert_batch(all_ids, all_embeddings, file_path, total_inserted)
-                if success_file:
-                    last_success_file = success_file
-                    write_checkpoint(last_success_file)
-                    all_ids, all_embeddings = [], []
+        if len(patent_ids) != embeddings.shape[0]:
+            print(f"⚠️ Jumlah ID vs embeddings tidak cocok di {file_path} ({len(patent_ids)} vs {embeddings.shape[0]}), dilewati.")
+            failed_files.append(file_path)
+            continue
+
+        all_ids.extend(patent_ids)
+        all_embeddings.append(embeddings)
+
+        if len(all_ids) >= BATCH_SIZE or len(all_embeddings) >= FILES_PER_BATCH:
+            success_file, total_inserted = insert_batch(all_ids, all_embeddings, f, total_inserted)
+            if success_file:
+                write_checkpoint(success_file)
+                all_ids, all_embeddings = [], []
 
     if all_ids:
-        success_file, total_inserted = insert_batch(all_ids, all_embeddings, last_success_file, total_inserted)
+        success_file, total_inserted = insert_batch(all_ids, all_embeddings, file_path, total_inserted)
         if success_file:
-            write_checkpoint(success_file)
-        print(f"✅ Sisa {len(all_ids)} data berhasil di-insert.")
+            write_checkpoint(f)
+            all_ids, all_embeddings = [], []
 
     if failed_files:
         print("⚠️ File yang gagal diproses:")
         for f in failed_files:
             print(f" - {f}")
-
-    # print("⏳ Melakukan kompresi koleksi setelah semua batch...")
-    # compact_collection(COLLECTION_NAME)
-
 
 if __name__ == "__main__":
     main()

@@ -32,7 +32,6 @@ if __name__ == "__main__":
     # for index_name in indices:
     #    print(f" - {index_name}")
 
-
     if data:
         # ✅ Perbaikan: Tambahkan `es` sebagai argumen pertama
         bulk_insert_patents(es, data)
