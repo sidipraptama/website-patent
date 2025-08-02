@@ -51,7 +51,7 @@ website-patent/
 
 ### 1. Clone repository
 ```
-git clone https://github.com/<username>/<repo>.git
+git clone https://github.com/sidipraptama/website-patent.git
 cd website-patent
 ```
 
